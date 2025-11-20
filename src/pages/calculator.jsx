@@ -44,7 +44,30 @@ export default function Calculator() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    calculateSavings()
+    
+    // Calculate first
+    const cost = parseFloat(formData.propertyCost)
+    if (!cost || cost <= 0) {
+      alert('Please enter a valid property cost')
+      return
+    }
+
+    const typicalCostSegPercentage = 0.25
+    const acceleratedAmount = cost * typicalCostSegPercentage
+    const bonusMultiplier = formData.bonusDepreciationPercent / 100
+    const firstYearDeduction = acceleratedAmount * bonusMultiplier
+    const taxSavings = firstYearDeduction * 0.37
+
+    const calculatedResults = {
+      propertyCost: cost,
+      acceleratedDepreciation: acceleratedAmount,
+      bonusDepreciation: firstYearDeduction,
+      estimatedTaxSavings: taxSavings,
+      yearOneSavings: taxSavings,
+      fiveYearSavings: taxSavings * 1.5,
+    }
+    
+    setResults(calculatedResults)
 
     // Save to CRM
     try {
@@ -59,7 +82,7 @@ export default function Calculator() {
           status: 'warm',
           pipeline_stage: 'qualified',
           tags: ['calculator-lead', 'high-intent'],
-          notes: `Calculator results: Estimated savings $${results?.estimatedTaxSavings.toLocaleString()}`,
+          notes: `Calculator results: Estimated savings $${calculatedResults.estimatedTaxSavings.toLocaleString()}`,
         },
       ])
       setSubmitted(true)
@@ -227,8 +250,36 @@ export default function Calculator() {
               animate={{ opacity: 1, scale: 1 }}
               className="mt-8 space-y-6"
             >
-              <div className="card bg-gradient-to-br from-navy-700 to-navy-900 text-white text-center p-12">
-                <h2 className="text-white mb-4">Your Estimated Tax Savings</h2>
+              {/* Action Buttons */}
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => {
+                    setResults(null)
+                    setSubmitted(false)
+                    setFormData({
+                      propertyType: 'commercial',
+                      propertyCost: '',
+                      dateInService: '',
+                      taxFilingYear: new Date().getFullYear(),
+                      bonusDepreciationPercent: 100,
+                      name: '',
+                      email: '',
+                      phone: '',
+                    })
+                  }}
+                  className="px-6 py-3 bg-navy-900 text-white rounded-lg hover:bg-navy-800"
+                >
+                  🔄 Calculate Another Property
+                </button>
+                <Link href="/" className="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700">
+                  🏠 Back to Home
+                </Link>
+                <Link href="/schedule" className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                  📅 Schedule Consultation
+                </Link>
+              </div>
+
+              <div className="card bg-gradient-to-br from-navy-700 to-navy-900 text-white text-center p-12">\n                <h2 className="text-white mb-4">Your Estimated Tax Savings</h2>
                 <div className="text-6xl font-bold text-gold-400 mb-2">
                   ${results.estimatedTaxSavings.toLocaleString('en-US', { maximumFractionDigits: 0 })}
                 </div>

@@ -24,9 +24,13 @@ export default function Header() {
           <Link href="/" className="flex items-center space-x-3">
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="text-2xl font-serif font-bold text-navy-700"
+              className="text-2xl font-serif font-bold"
+              style={{
+                textShadow: '0 0 20px rgba(255,255,255,0.8), 0 0 10px rgba(0,0,0,0.9), 2px 2px 4px rgba(0,0,0,0.8)',
+                WebkitTextStroke: '1px rgba(255,255,255,0.3)'
+              }}
             >
-              Kashflow <span className="text-gold-500">Kathy</span>
+              <span className="text-navy-700">Kashflow</span> <span className="text-gold-500">Kathy</span>
             </motion.div>
           </Link>
 

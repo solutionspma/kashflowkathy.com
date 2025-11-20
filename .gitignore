@@ -42,3 +42,5 @@ mobile/android/app/build/
 # Debug
 *.orig.*
 web-build/
+deploy/
+out/

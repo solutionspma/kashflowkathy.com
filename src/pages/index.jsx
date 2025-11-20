@@ -1,17 +1,48 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import MainLayout from '@/layouts/MainLayout'
+import Head from 'next/head'
 import ParticleBackground from '@/components/ParticleBackground'
 import ContactForm from '@/components/ContactForm'
 import Link from 'next/link'
 import kathyData from '@/../../data/kathy.json'
+import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
-    <MainLayout>
-      {/* Hero Section */}
+    <>
+      <Head>
+        <title>Kashflow Kathy - Cost Segregation Specialist</title>
+        <meta name="description" content="Expert cost segregation and R&D tax credit services" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      
+      {/* Hero Section - FULL SCREEN NO NAV */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <ParticleBackground />
+        
+        {/* Persistent Top Navigation Bar */}
+        <div className="absolute top-0 left-0 right-0 z-50 bg-navy-900/80 backdrop-blur-sm border-b border-gold-400/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <Link href="/" className="text-gold-400 font-bold text-lg hover:text-gold-300 logo-text">
+              Kashflow Kathy
+            </Link>
+            <div className="flex gap-4 items-center">
+              <Link href="/services" className="text-white hover:text-gold-400 transition-colors">
+                Services
+              </Link>
+              <Link href="/calculator" className="text-white hover:text-gold-400 transition-colors">
+                Calculator
+              </Link>
+              <Link href="/about" className="text-white hover:text-gold-400 transition-colors">
+                About
+              </Link>
+              <Link href="/schedule" className="px-4 py-2 bg-gold-400 text-navy-900 rounded-lg hover:bg-gold-500 font-semibold transition-all">
+                Get Started →
+              </Link>
+            </div>
+          </div>
+        </div>
+
         <div className="relative z-10 section-container text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -34,6 +65,22 @@ export default function Home() {
             </div>
           </motion.div>
         </div>
+
+        {/* Animated Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+        >
+          <div className="text-center">
+            <div className="text-gold-400 text-sm font-semibold mb-2 animate-pulse">
+              Scroll to explore
+            </div>
+            <div className="text-4xl text-gold-400 animate-bounce">
+              ⬇️
+            </div>
+          </div>
+        </motion.div>
       </section>
 
       {/* About Kathy Section */}
@@ -44,12 +91,12 @@ export default function Home() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <div className="aspect-square bg-gradient-to-br from-navy-600 to-navy-800 rounded-2xl shadow-2xl flex items-center justify-center">
-              <div className="text-center text-white p-8">
-                <div className="text-6xl mb-4">💼</div>
-                <h3 className="text-2xl font-bold">Kathy Ferguson</h3>
-                <p className="text-gold-400">Cost Segregation Specialist</p>
-              </div>
+            <div className="aspect-square rounded-full overflow-hidden shadow-2xl border-4 border-gold-400">
+              <img 
+                src="/images/kathy-ferguson-circular.png" 
+                alt="Kathy Ferguson - Cost Segregation Specialist"
+                className="w-full h-full object-cover"
+              />
             </div>
           </motion.div>
           <motion.div
@@ -139,6 +186,8 @@ export default function Home() {
           <ContactForm source="homepage" />
         </div>
       </section>
-    </MainLayout>
+      
+      <Footer />
+    </>
   )
 }

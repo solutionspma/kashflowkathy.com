@@ -25,17 +25,12 @@ export default function About() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="aspect-square bg-gradient-to-br from-navy-600 to-navy-800 rounded-2xl shadow-2xl flex items-center justify-center">
-                <div className="text-center text-white p-8">
-                  <div className="text-8xl mb-4">👩‍💼</div>
-                  <h3 className="text-3xl font-bold mb-2">{kathyData.profile.name}</h3>
-                  <p className="text-gold-400 text-lg">{kathyData.profile.title}</p>
-                  <div className="mt-6 space-y-2 text-sm">
-                    <p>📧 {kathyData.profile.email}</p>
-                    <p>📞 {kathyData.profile.phone}</p>
-                    <p>📍 {kathyData.profile.region}</p>
-                  </div>
-                </div>
+              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                  src="/images/kathy-ferguson.png" 
+                  alt="Kathy Ferguson - Cost Segregation Expert"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </motion.div>
 

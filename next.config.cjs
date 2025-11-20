@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  output: 'export',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     domains: [
       'cssiservices.com',
@@ -15,9 +18,6 @@ const nextConfig = {
       },
     ],
     unoptimized: true, // For Netlify compatibility
-  },
-  experimental: {
-    serverActions: true,
   },
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL,

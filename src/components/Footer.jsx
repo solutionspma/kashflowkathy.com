@@ -32,6 +32,7 @@ export default function Footer() {
               <li><Link href="/partnerships" className="text-slate-400 hover:text-gold-500">Partnerships</Link></li>
               <li><Link href="/referrals" className="text-slate-400 hover:text-gold-500">Referrals</Link></li>
               <li><Link href="/app-download" className="text-slate-400 hover:text-gold-500">Mobile App</Link></li>
+              <li><Link href="/login" className="text-gold-400 hover:text-gold-300 font-semibold">🔐 Client Login</Link></li>
             </ul>
           </div>
 
@@ -46,7 +47,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
-          <p>&copy; 2025 Kashflow Kathy. All rights reserved.</p>
+          <p className="logo-text-light">&copy; 2025 Kashflow Kathy. All rights reserved.</p>
           <p className="mt-2">Powered by Pitch Market Strategies & Public Relations LLC</p>
         </div>
       </div>
