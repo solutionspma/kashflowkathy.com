@@ -1,0 +1,37 @@
+{
+  "project_name": "kashflowkathy",
+  "project_id": "",
+  "database": {
+    "host": "",
+    "port": 5432,
+    "database": "postgres",
+    "user": "postgres",
+    "password": ""
+  },
+  "api": {
+    "url": "",
+    "anon_key": "",
+    "service_role_key": ""
+  },
+  "auth": {
+    "site_url": "http://localhost:3000",
+    "additional_redirect_urls": [],
+    "jwt_expiry": 3600,
+    "enable_signup": true,
+    "email_confirm_required": true
+  },
+  "storage": {
+    "file_size_limit": 52428800,
+    "buckets": [
+      "profile-photos",
+      "cssi-photos",
+      "branding",
+      "videos",
+      "documents",
+      "social-media-content"
+    ]
+  },
+  "realtime": {
+    "enabled": true
+  }
+}
