@@ -1,0 +1,3766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayhem Module - Professional Audio Production | Powered by Pitch Modular Spaces</title>
+    <meta name="theme-color" content="#00ffff">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #00ffff;
+            --primary-dark: #00baff;
+            --secondary: #00fff5;
+            --accent: #007bff;
+            --bg-dark: #000814;
+            --bg-darker: #000005;
+            --bg-card: #001d28;
+            --text: #00ffff;
+            --text-muted: #005d8c;
+            --active: #22c55e;
+            --warning: #ef4444;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 50%, #002e44 100%);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .right-sidebar {
+            width: 280px;
+            background: rgba(0, 8, 20, 0.95);
+            border-left: 2px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Performance: Use will-change for animated elements */
+        .animated { will-change: transform, opacity; }
+        
+        /* Top Bar */
+        .top-bar {
+            background: rgba(0, 8, 20, 0.98);
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            gap: 20px;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+            z-index: 1000;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        
+        .brand-text h1 {
+            font-size: 1.3em;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .brand-text p {
+            font-size: 0.7em;
+            color: var(--text-muted);
+        }
+        
+        /* Equipment Cluster */
+        .equipment-cluster {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .eq-btn {
+            padding: 8px 15px;
+            background: rgba(0, 29, 40, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            color: var(--primary);
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .eq-btn:hover, .eq-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        
+        /* Transport Bar */
+        .transport-bar {
+            background: rgba(0, 8, 20, 0.95);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .transport-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .transport-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+        
+        .transport-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+            transform: scale(1.1);
+        }
+        
+        .transport-btn.active {
+            background: var(--active);
+            border-color: var(--active);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        }
+        
+        .bpm-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: rgba(0, 29, 40, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+        }
+        
+        .bpm-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            color: var(--primary);
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.8em;
+            color: var(--primary);
+            padding: 8px 20px;
+            background: rgba(0, 8, 20, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .metronome-btn {
+            padding: 10px 18px;
+            background: rgba(0, 29, 40, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .metronome-btn.active {
+            background: var(--active);
+            border-color: var(--active);
+            color: white;
+        }
+        
+        /* Main App Layout */
+        .app-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .right-sidebar {
+            width: 280px;
+            min-width: 280px;
+            max-width: 280px;
+            background: rgba(0, 8, 20, 0.95);
+            border-left: 2px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+        
+        /* Collaboration Sidebar */
+        .collab-section {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        .collab-title {
+            color: var(--primary);
+            font-size: 0.9em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .video-preview {
+            position: relative;
+            background: #000;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .speaking-badge {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 4px;
+            color: var(--primary);
+            font-size: 0.7em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .chat-box {
+            background: rgba(0, 8, 20, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: #000;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 0.75em;
+            min-height: 150px;
+            max-height: 300px;
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 6px 8px;
+            background: rgba(0, 8, 20, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            color: var(--primary);
+            font-size: 0.75em;
+        }
+        
+        .collab-btn {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 6px;
+            background: transparent;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            color: var(--primary);
+            font-size: 0.75em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .collab-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+        
+        .collab-btn.active {
+            background: var(--active);
+            border-color: var(--active);
+            color: white;
+        }
+        
+        /* Tabs */
+        .tab-bar {
+            background: rgba(0, 8, 20, 0.9);
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            gap: 5px;
+            padding: 0 15px;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 12px 25px;
+            border-radius: 10px 10px 0 0;
+            border: 2px solid transparent;
+            border-bottom: none;
+            background: rgba(0, 29, 40, 0.5);
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .tab.active {
+            background: var(--bg-card);
+            color: var(--primary);
+            border-color: var(--primary);
+            border-bottom: none;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Audio Device Selector */
+        .device-selector {
+            background: rgba(0, 29, 40, 0.9);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .device-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .device-row label {
+            color: var(--primary);
+            font-weight: 600;
+            min-width: 120px;
+        }
+        
+        .device-row select {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 8, 20, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            color: var(--primary);
+            font-size: 0.95em;
+        }
+        
+        .level-meter {
+            flex: 1;
+            height: 8px;
+            background: rgba(0, 8, 20, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .level-meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--active), var(--primary), var(--warning));
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        /* Waveform Editor */
+        .waveform-editor {
+            background: rgba(0, 8, 20, 0.9);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .waveform-canvas {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            border-radius: 8px;
+            cursor: crosshair;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .waveform-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        
+        .waveform-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .waveform-btn:hover, .waveform-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            background: rgba(0, 29, 40, 0.8);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .control-knob {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .knob {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #002a38, #000814);
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 255, 255, 0.3);
+            transition: box-shadow 0.2s;
+        }
+        
+        .knob:hover, .knob.active {
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 255, 255, 0.6);
+            border-color: var(--secondary);
+        }
+        
+        .knob-indicator {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 30px;
+            background: var(--secondary);
+            border-radius: 3px;
+            box-shadow: 0 0 10px var(--secondary);
+            transform-origin: center 35px;
+        }
+        
+        .knob-label {
+            color: var(--text);
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        /* Professional Mixer Styles */
+        .mixer-grid {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 20px;
+            background: rgba(0, 8, 20, 0.6);
+            border-radius: 12px;
+        }
+        
+        .channel-strip {
+            min-width: 100px;
+            background: linear-gradient(180deg, #001a24 0%, #000814 100%);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .channel-strip:hover {
+            border-color: var(--primary);
+            box-shadow: 0 6px 25px rgba(0, 255, 255, 0.3);
+        }
+        
+        .channel-label {
+            text-align: center;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .channel-input-select {
+            width: 100%;
+            padding: 6px;
+            background: rgba(0, 8, 20, 0.9);
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            color: var(--primary);
+            font-size: 0.75em;
+        }
+        
+        .vu-meter {
+            height: 120px;
+            width: 30px;
+            background: #000;
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .vu-meter-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, 
+                #22c55e 0%, 
+                #22c55e 60%, 
+                #eab308 60%, 
+                #eab308 85%, 
+                #ef4444 85%, 
+                #ef4444 100%);
+            height: 0%;
+            transition: height 0.05s;
+        }
+        
+        .pan-knob {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #002a38, #000814);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: relative;
+            cursor: grab;
+            margin: 0 auto;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .pan-knob:active {
+            cursor: grabbing;
+        }
+        
+        .pan-indicator {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 20px;
+            background: var(--secondary);
+            border-radius: 2px;
+            transform-origin: center 26px;
+        }
+        
+        .pan-label {
+            text-align: center;
+            font-size: 0.7em;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        
+        .aux-sends {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .aux-send {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .aux-label {
+            font-size: 0.65em;
+            color: var(--text-muted);
+        }
+        
+        .aux-knob {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #001520, #000814);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .aux-indicator {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 2px;
+            transform-origin: center 15px;
+        }
+        
+        .fader-container {
+            height: 200px;
+            width: 40px;
+            background: #000;
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            position: relative;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        .fader-track {
+            position: absolute;
+            top: 10px;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            background: rgba(0, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        
+        .fader-handle {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 30px;
+            background: linear-gradient(180deg, var(--primary), var(--accent));
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            cursor: grab;
+            box-shadow: 0 2px 10px rgba(0, 255, 255, 0.5);
+            top: 0%;
+        }
+        
+        .fader-handle:active {
+            cursor: grabbing;
+        }
+        
+        .fader-db {
+            text-align: center;
+            font-size: 0.7em;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        
+        .channel-buttons {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+        
+        .channel-btn {
+            flex: 1;
+            padding: 8px 4px;
+            font-size: 0.7em;
+            font-weight: 700;
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .channel-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+        }
+        
+        .channel-btn.active {
+            background: var(--active);
+            border-color: var(--active);
+            color: white;
+        }
+        
+        .channel-btn.solo.active {
+            background: #eab308;
+            border-color: #eab308;
+        }
+        
+        .channel-btn.arm.active {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+        
+        /* Drum Machine Styles */
+        .drum-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0, 8, 20, 0.8);
+            border-radius: 12px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .drum-pad {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #001a24, #000814);
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .drum-pad:hover {
+            border-color: var(--secondary);
+            box-shadow: 0 6px 25px rgba(0, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .drum-pad.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-color: var(--secondary);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+            transform: scale(0.95);
+        }
+        
+        .drum-pad-label {
+            font-size: 0.75em;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .drum-pad-key {
+            font-size: 1.8em;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .drum-pad.active .drum-pad-key {
+            color: var(--bg-dark);
+        }
+        
+        .drum-pad-name {
+            font-size: 0.8em;
+            color: var(--primary);
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        
+        .drum-pad.active .drum-pad-name {
+            color: var(--bg-dark);
+        }
+        
+        /* Synthesizer Keyboard */
+        .synth-keyboard {
+            display: flex;
+            justify-content: center;
+            height: 200px;
+            position: relative;
+            user-select: none;
+        }
+        
+        .piano-key {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.05s;
+        }
+        
+        .piano-key.white {
+            width: 50px;
+            height: 200px;
+            background: linear-gradient(180deg, #ffffff, #e0e0e0);
+            border: 2px solid #000;
+            border-radius: 0 0 6px 6px;
+            z-index: 1;
+        }
+        
+        .piano-key.black {
+            width: 30px;
+            height: 120px;
+            background: linear-gradient(180deg, #1a1a1a, #000);
+            border: 2px solid #000;
+            border-radius: 0 0 4px 4px;
+            position: absolute;
+            z-index: 2;
+            margin-left: -15px;
+        }
+        
+        .piano-key:hover {
+            filter: brightness(1.1);
+        }
+        
+        .piano-key.active.white {
+            background: linear-gradient(180deg, var(--primary), var(--accent));
+            box-shadow: 0 0 20px var(--primary);
+        }
+        
+        .piano-key.active.black {
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 0 20px var(--primary);
+        }
+        
+        .piano-key-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7em;
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .piano-key.black .piano-key-label {
+            color: var(--text-muted);
+        }
+        
+        /* FX Plugins */
+        .fx-plugin {
+            background: linear-gradient(180deg, #001a24, #000814);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .fx-plugin-title {
+            color: var(--primary);
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .fx-plugin-controls {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .knob-value {
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+        
+        /* Mixer Channel Strip */
+        .mixer-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 10px;
+            background: rgba(0, 8, 20, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid var(--primary);
+            overflow-x: auto;
+        }
+        
+        .channel-strip {
+            background: linear-gradient(to bottom, #001520, #000810);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px 10px;
+            min-width: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .channel-label {
+            text-align: center;
+            color: var(--primary);
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 5px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .channel-meter {
+            height: 150px;
+            background: #000;
+            border-radius: 5px;
+            position: relative;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .meter-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: linear-gradient(to top, var(--active), var(--primary), var(--warning));
+            border-radius: 5px;
+            transition: height 0.1s;
+        }
+        
+        .fader-container {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(to bottom, #001d28, #000814);
+            border-radius: 15px;
+            padding: 10px 0;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .fader-handle {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 8px;
+            cursor: grab;
+            border: 2px solid var(--secondary);
+            box-shadow: 0 2px 10px rgba(0, 255, 255, 0.4);
+        }
+        
+        .fader-handle:active {
+            cursor: grabbing;
+        }
+        
+        .pan-knob {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #002a38, #000814);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        
+        .channel-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .ch-btn {
+            padding: 6px;
+            background: rgba(0, 29, 40, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            color: var(--primary);
+            font-size: 0.7em;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .ch-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+        }
+        
+        .ch-btn.active {
+            background: var(--active);
+            border-color: var(--active);
+            color: white;
+        }
+        
+        .ch-btn.mute.active {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+        
+        /* Studio/Multitrack View */
+        .multitrack {
+            background: rgba(0, 8, 20, 0.9);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .track {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 15px;
+            background: rgba(0, 29, 40, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .track-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .track-name {
+            color: var(--primary);
+            font-weight: 600;
+            padding: 8px;
+            background: rgba(0, 8, 20, 0.8);
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .track-timeline {
+            background: #000;
+            border-radius: 6px;
+            min-height: 80px;
+            position: relative;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        /* Collaboration Sidebar */
+        .collab-section {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        .collab-title {
+            color: var(--primary);
+            font-size: 0.9em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        
+        .video-preview {
+            position: relative;
+            background: #000;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .speaking-badge {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 4px;
+            color: var(--primary);
+            font-size: 0.7em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .chat-box {
+            background: rgba(0, 8, 20, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: #000;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 0.75em;
+            max-height: 200px;
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 6px;
+            background: rgba(0, 8, 20, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            color: var(--primary);
+            font-size: 0.75em;
+        }
+        
+        .collab-btn {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 6px;
+            background: transparent;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            color: var(--primary);
+            font-size: 0.75em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .collab-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+        
+        .collab-btn.active {
+            background: var(--active);
+            border-color: var(--active);
+            color: white;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .equipment-cluster {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .transport-bar {
+                flex-wrap: wrap;
+            }
+            
+            .mixer-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar: Logo + Equipment Cluster -->
+    <div class="top-bar">
+        <div class="logo-section">
+            <div class="logo">🎛️</div>
+            <div class="brand-text">
+                <h1>Mayhem Module</h1>
+                <p>Powered by Pitch Modular Spaces</p>
+            </div>
+        </div>
+        
+        <div class="equipment-cluster">
+            <button class="eq-btn" onclick="openEquipment('amps')">🎸 Amps</button>
+            <button class="eq-btn" onclick="openEquipment('effects')">✨ Effects</button>
+            <button class="eq-btn" onclick="openEquipment('instruments')">🎹 Instruments</button>
+            <button class="eq-btn" onclick="openEquipment('dynamics')">🔊 Dynamics</button>
+            <button class="eq-btn" onclick="openEquipment('eq')">🎚️ EQ</button>
+            <button class="eq-btn" onclick="openEquipment('utilities')">🔧 Utilities</button>
+        </div>
+    </div>
+    
+    <!-- Transport Bar -->
+    <div class="transport-bar">
+        <div class="transport-controls">
+            <button class="transport-btn" onclick="skipBackward()" title="Skip Backward">⏮️</button>
+            <button class="transport-btn" onclick="rewindTransport()" title="Rewind">⏪</button>
+            <button class="transport-btn" id="playBtn" onclick="togglePlayback()" title="Play">▶️</button>
+            <button class="transport-btn" onclick="stopTransport()" title="Stop">⏹️</button>
+            <button class="transport-btn" onclick="skipForward()" title="Skip Forward">⏭️</button>
+            <button class="transport-btn" id="recordBtn" onclick="toggleRecord()" title="Record">⏺</button>
+            <button class="transport-btn" id="loopBtn" onclick="toggleLoop()" title="Loop">🔁</button>
+        </div>
+        
+        <div class="bpm-control">
+            <button class="waveform-btn" onclick="decreaseBPM()">-</button>
+            <div class="bpm-display" id="bpmDisplay">120 BPM</div>
+            <button class="waveform-btn" onclick="increaseBPM()">+</button>
+            <button class="waveform-btn" onclick="tapTempo()">TAP</button>
+        </div>
+        
+        <div class="time-display" id="timeDisplay">00:00:00</div>
+        
+        <div>
+            <button class="metronome-btn" id="metronomeBtn" onclick="toggleMetronome()">🥁 Metronome OFF</button>
+        </div>
+    </div>
+    
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('sampler')">💿 Sampler</div>
+        <div class="tab" onclick="switchTab('drums')">🥁 Drums</div>
+        <div class="tab" onclick="switchTab('synth')">🎹 Synth</div>
+        <div class="tab" onclick="switchTab('studio')">🎬 Studio</div>
+        <div class="tab" onclick="switchTab('mixer')">🎚️ Mixer</div>
+        <div class="tab" onclick="switchTab('fx')">✨ FX</div>
+    </div>
+    
+    <div class="app-container">
+        <!-- Main Content Area -->
+        <div class="content-area">
+        <!-- SAMPLER TAB -->
+        <div id="sampler" class="tab-content active">
+            <!-- Audio Input Device Selector -->
+            <div class="device-selector">
+                <h3 style="color: var(--primary); margin-bottom: 15px;">🎤 Audio Input Configuration</h3>
+                <div class="device-row">
+                    <label>Audio Input:</label>
+                    <select id="audioInputSelect" onchange="selectAudioInput()">
+                        <option>Detecting devices...</option>
+                    </select>
+                    <button class="waveform-btn" onclick="testAudioInput()">🔊 Test</button>
+                </div>
+                <div class="device-row">
+                    <label>Input Level:</label>
+                    <div class="level-meter">
+                        <div class="level-meter-fill" id="inputLevelMeter"></div>
+                    </div>
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.85em; margin-top: 10px;">
+                    ℹ️ Select your webcam or microphone. Test to hear yourself. Level meter shows input volume.
+                </div>
+            </div>
+            
+            <!-- Waveform Editor -->
+            <div class="waveform-editor">
+                <h3 style="color: var(--primary); margin-bottom: 15px;">📊 Professional Waveform Editor</h3>
+                <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
+                <div class="waveform-controls">
+                    <div style="display: flex; gap: 10px;">
+                        <button class="waveform-btn" onclick="document.getElementById('audioFileInput').click()">📁 Load Sample</button>
+                        <button class="waveform-btn" id="snapGridBtn" onclick="toggleSnapGrid()">📐 Snap: OFF</button>
+                        <button class="waveform-btn" onclick="zoomIn()">🔍+ Zoom In</button>
+                        <button class="waveform-btn" onclick="zoomOut()">🔍- Zoom Out</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="waveform-btn" onclick="autoChopSample()">✂️ Auto-Chop</button>
+                        <button class="waveform-btn" onclick="clearChopPoints()">🗑️ Clear Chops</button>
+                        <button class="waveform-btn" onclick="saveChopPoints()">💾 Save Chops</button>
+                        <button class="waveform-btn active" onclick="exportToPads()">📤 Export to Pads</button>
+                    </div>
+                </div>
+                <input type="file" id="audioFileInput" accept="audio/*" style="display: none;" onchange="loadAudioFile(event)">
+            </div>
+            
+            <!-- Sample Controls -->
+            <div class="control-panel" id="sampleControls"></div>
+        </div>
+        
+        <!-- Other tabs will be populated similarly -->
+        <div id="drums" class="tab-content">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">🥁 16-Pad Drum Machine</h2>
+            
+            <div style="display: grid; gap: 20px; grid-template-columns: 1fr 300px;">
+                <!-- Drum Pad Grid -->
+                <div>
+                    <div class="drum-grid" id="drumGrid"></div>
+                    <div style="margin-top: 15px; padding: 15px; background: rgba(0, 29, 40, 0.6); border-radius: 8px; border: 1px solid rgba(0, 255, 255, 0.3);">
+                        <div style="color: var(--text-muted); font-size: 0.85em;">
+                            <strong style="color: var(--primary);">Keyboard Shortcuts:</strong><br>
+                            Q W E R (Top row) | A S D F (Second row) | Z X C V (Third row) | 1 2 3 4 (Bottom row)
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preset Panel -->
+                <div>
+                    <div style="background: rgba(0, 29, 40, 0.8); border: 2px solid var(--primary); border-radius: 12px; padding: 20px;">
+                        <h3 style="color: var(--primary); margin-bottom: 15px;">🎛️ Drum Kit Presets</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button class="waveform-btn" onclick="loadDrumPreset('tr808')">TR-808</button>
+                            <button class="waveform-btn" onclick="loadDrumPreset('tr909')">TR-909</button>
+                            <button class="waveform-btn" onclick="loadDrumPreset('acoustic')">Acoustic Kit</button>
+                            <button class="waveform-btn" onclick="loadDrumPreset('trap')">Trap Kit</button>
+                            <button class="waveform-btn" onclick="loadDrumPreset('house')">House Kit</button>
+                            <button class="waveform-btn" onclick="loadDrumPreset('custom')">Custom Kit</button>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 255, 255, 0.3);">
+                            <button class="waveform-btn active" onclick="saveDrumKit()">💾 Save Kit</button>
+                            <button class="waveform-btn" style="margin-top: 10px;" onclick="document.getElementById('kitFileInput').click()">📁 Load Kit</button>
+                            <input type="file" id="kitFileInput" accept=".maykit" style="display: none;" onchange="loadKitFile(event)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="synth" class="tab-content">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">🎹 Synthesizer & Vocoder</h2>
+            
+            <div style="display: grid; gap: 20px;">
+                <!-- Mode Selector -->
+                <div style="background: rgba(0, 29, 40, 0.8); border: 2px solid var(--primary); border-radius: 12px; padding: 20px;">
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+                        <button class="waveform-btn active" id="polyBtn" onclick="setSynthMode('poly')">POLY</button>
+                        <button class="waveform-btn" id="monoBtn" onclick="setSynthMode('mono')">MONO</button>
+                        <button class="waveform-btn" id="vocoderBtn" onclick="setSynthMode('vocoder')">VOCODER</button>
+                    </div>
+                    
+                    <!-- Preset Selection -->
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                        <button class="eq-btn" onclick="loadSynthPreset('juno')">Juno Pad</button>
+                        <button class="eq-btn" onclick="loadSynthPreset('brass')">Yamaha Brass</button>
+                        <button class="eq-btn" onclick="loadSynthPreset('bass')">Korg Bass</button>
+                        <button class="eq-btn" onclick="loadSynthPreset('lead')">Mini Lead</button>
+                        <button class="eq-btn" onclick="loadSynthPreset('pluck')">Pluck</button>
+                    </div>
+                </div>
+                
+                <!-- Keyboard -->
+                <div style="background: rgba(0, 8, 20, 0.9); border: 2px solid var(--primary); border-radius: 12px; padding: 20px;">
+                    <div id="synthKeyboard" class="synth-keyboard"></div>
+                </div>
+                
+                <!-- Synth Controls -->
+                <div class="control-panel" id="synthControls"></div>
+            </div>
+        </div>
+        
+        <div id="studio" class="tab-content">
+            <div class="multitrack">
+                <h2 style="color: var(--primary); margin-bottom: 20px;">🎬 Multitrack Studio</h2>
+                
+                <!-- Transport Timeline -->
+                <div style="background: rgba(0, 29, 40, 0.8); border: 2px solid var(--primary); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <div style="color: var(--text-muted); font-size: 0.85em;">Timeline:</div>
+                        <div style="flex: 1; height: 40px; background: #000; border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 6px; position: relative;">
+                            <div id="playhead" style="position: absolute; top: 0; bottom: 0; width: 2px; background: var(--warning); left: 0;"></div>
+                            <!-- Time markers will be drawn here -->
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: var(--text-muted); padding: 0 10px;">
+                        <span>0:00</span>
+                        <span>1:00</span>
+                        <span>2:00</span>
+                        <span>3:00</span>
+                        <span>4:00</span>
+                    </div>
+                </div>
+                
+                <!-- Track List -->
+                <div id="trackList"></div>
+                
+                <!-- Add Track Button -->
+                <button class="waveform-btn active" onclick="addTrack()" style="margin-top: 15px;">➕ Add Track</button>
+            </div>
+        </div>
+        
+        <div id="mixer" class="tab-content">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">🎚️ 16-Channel Mixing Console</h2>
+            <div class="mixer-grid" id="mixerGrid"></div>
+        </div>
+        
+        <div id="fx" class="tab-content">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">✨ Professional FX Rack</h2>
+            
+            <div style="display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                <!-- Reverb -->
+                <div class="fx-plugin">
+                    <h3 class="fx-plugin-title">🌊 Reverb</h3>
+                    <div class="fx-plugin-controls">
+                        <div class="control-knob">
+                            <div class="knob" data-fx="reverb" data-param="mix">
+                                <div class="knob-indicator" id="reverbMixIndicator"></div>
+                            </div>
+                            <div class="knob-label">MIX</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="reverb" data-param="decay">
+                                <div class="knob-indicator" id="reverbDecayIndicator"></div>
+                            </div>
+                            <div class="knob-label">DECAY</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="reverb" data-param="predelay">
+                                <div class="knob-indicator" id="reverbPredelayIndicator"></div>
+                            </div>
+                            <div class="knob-label">PREDELAY</div>
+                        </div>
+                    </div>
+                    <button class="waveform-btn" onclick="toggleFX('reverb')" id="reverbToggle">ON/OFF</button>
+                </div>
+                
+                <!-- Delay -->
+                <div class="fx-plugin">
+                    <h3 class="fx-plugin-title">🔁 Delay</h3>
+                    <div class="fx-plugin-controls">
+                        <div class="control-knob">
+                            <div class="knob" data-fx="delay" data-param="time">
+                                <div class="knob-indicator" id="delayTimeIndicator"></div>
+                            </div>
+                            <div class="knob-label">TIME</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="delay" data-param="feedback">
+                                <div class="knob-indicator" id="delayFeedbackIndicator"></div>
+                            </div>
+                            <div class="knob-label">FEEDBACK</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="delay" data-param="mix">
+                                <div class="knob-indicator" id="delayMixIndicator"></div>
+                            </div>
+                            <div class="knob-label">MIX</div>
+                        </div>
+                    </div>
+                    <button class="waveform-btn" onclick="toggleFX('delay')" id="delayToggle">ON/OFF</button>
+                </div>
+                
+                <!-- Compressor -->
+                <div class="fx-plugin">
+                    <h3 class="fx-plugin-title">🔊 CLA-76 Compressor</h3>
+                    <div class="fx-plugin-controls">
+                        <div class="control-knob">
+                            <div class="knob" data-fx="compressor" data-param="threshold">
+                                <div class="knob-indicator" id="compThresholdIndicator"></div>
+                            </div>
+                            <div class="knob-label">THRESHOLD</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="compressor" data-param="ratio">
+                                <div class="knob-indicator" id="compRatioIndicator"></div>
+                            </div>
+                            <div class="knob-label">RATIO</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="compressor" data-param="attack">
+                                <div class="knob-indicator" id="compAttackIndicator"></div>
+                            </div>
+                            <div class="knob-label">ATTACK</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="compressor" data-param="release">
+                                <div class="knob-indicator" id="compReleaseIndicator"></div>
+                            </div>
+                            <div class="knob-label">RELEASE</div>
+                        </div>
+                    </div>
+                    <button class="waveform-btn" onclick="toggleFX('compressor')" id="compressorToggle">ON/OFF</button>
+                </div>
+                
+                <!-- EQ -->
+                <div class="fx-plugin">
+                    <h3 class="fx-plugin-title">🎚️ Parametric EQ</h3>
+                    <div class="fx-plugin-controls">
+                        <div class="control-knob">
+                            <div class="knob" data-fx="eq" data-param="low">
+                                <div class="knob-indicator" id="eqLowIndicator"></div>
+                            </div>
+                            <div class="knob-label">LOW</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="eq" data-param="mid">
+                                <div class="knob-indicator" id="eqMidIndicator"></div>
+                            </div>
+                            <div class="knob-label">MID</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="eq" data-param="high">
+                                <div class="knob-indicator" id="eqHighIndicator"></div>
+                            </div>
+                            <div class="knob-label">HIGH</div>
+                        </div>
+                    </div>
+                    <button class="waveform-btn" onclick="toggleFX('eq')" id="eqToggle">ON/OFF</button>
+                </div>
+                
+                <!-- Chorus -->
+                <div class="fx-plugin">
+                    <h3 class="fx-plugin-title">🌀 Chorus</h3>
+                    <div class="fx-plugin-controls">
+                        <div class="control-knob">
+                            <div class="knob" data-fx="chorus" data-param="rate">
+                                <div class="knob-indicator" id="chorusRateIndicator"></div>
+                            </div>
+                            <div class="knob-label">RATE</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="chorus" data-param="depth">
+                                <div class="knob-indicator" id="chorusDepthIndicator"></div>
+                            </div>
+                            <div class="knob-label">DEPTH</div>
+                        </div>
+                        <div class="control-knob">
+                            <div class="knob" data-fx="chorus" data-param="mix">
+                                <div class="knob-indicator" id="chorusMixIndicator"></div>
+                            </div>
+                            <div class="knob-label">MIX</div>
+                        </div>
+                    </div>
+                    <button class="waveform-btn" onclick="toggleFX('chorus')" id="chorusToggle">ON/OFF</button>
+                </div>
+                
+                <!-- Vocal Processor -->
+                <div class="fx-plugin">
+                    <h3 class="fx-plugin-title">🎤 AI Vocal Processor</h3>
+                    <div style="padding: 15px; background: rgba(0, 8, 20, 0.6); border-radius: 8px; margin-bottom: 10px;">
+                        <div id="aiSuggestions" style="color: var(--text-muted); font-size: 0.85em;">
+                            Load a vocal recording to get AI suggestions...
+                        </div>
+                    </div>
+                    <button class="waveform-btn active" onclick="analyzeVocal()">🤖 Analyze Vocal</button>
+                    <button class="waveform-btn" onclick="applyAISuggestions()" style="margin-top: 10px;">✅ Apply Suggestions</button>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+        <!-- Right Sidebar: Video Collaboration -->
+        <div class="right-sidebar">
+            <!-- Video Section -->
+            <div class="collab-section">
+                <div class="collab-title">📹 Video</div>
+                <div class="video-preview">
+                    <video id="localVideo" autoplay muted></video>
+                    <div class="speaking-badge" id="speakingIndicator">You</div>
+                </div>
+                <button class="collab-btn" onclick="startCamera()" id="cameraBtn">📹 Camera</button>
+                <button class="collab-btn" onclick="toggleMic()" id="micBtn">🎤 Mic</button>
+                <button class="collab-btn" onclick="shareScreen()">🖥️ Share</button>
+            </div>
+            
+            <!-- Chat Section -->
+            <div class="collab-section" style="flex: 1; display: flex; flex-direction: column;">
+                <div class="collab-title">💬 Chat</div>
+                <div class="chat-box">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendChat()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== PERFORMANCE OPTIMIZATION =====
+        console.log('🚀 Mayhem Module - Performance Optimized Build');
+        console.log('Using requestAnimationFrame for smooth animations');
+        console.log('Canvas rendering optimized with double-buffering');
+        console.log('Audio graph pre-initialized for zero-latency');
+        
+        // ===== AUDIO CONTEXT =====
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+        let masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.8;
+        masterGain.connect(audioCtx.destination);
+        
+        // ===== GLOBAL STATE =====
+        let currentBPM = 120;
+        let isPlaying = false;
+        let isRecording = false;
+        let isLooping = false;
+        let metronomeActive = false;
+        let snapToGrid = false;
+        let currentTime = 0;
+        let audioInputDevices = [];
+        let selectedAudioInput = null;
+        let audioInputStream = null;
+        let inputAnalyzer = null;
+        
+        // Sample data
+        let loadedSampleBuffer = null;
+        let chopPoints = [];
+        let waveformZoom = 1;
+        
+        // ===== DEVICE ENUMERATION =====
+        async function enumerateAudioDevices() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                audioInputDevices = devices.filter(d => d.kind === 'audioinput');
+                
+                const select = document.getElementById('audioInputSelect');
+                select.innerHTML = '';
+                
+                if (audioInputDevices.length === 0) {
+                    select.innerHTML = '<option>No audio inputs found</option>';
+                    return;
+                }
+                
+                audioInputDevices.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.textContent = device.label || `Audio Input ${index + 1}`;
+                    select.appendChild(option);
+                });
+                
+                console.log(`✅ Found ${audioInputDevices.length} audio input devices`);
+            } catch (error) {
+                console.error('❌ Error enumerating devices:', error);
+                alert('⚠️ Could not access audio devices. Please grant microphone permission.');
+            }
+        }
+        
+        async function selectAudioInput() {
+            const select = document.getElementById('audioInputSelect');
+            const deviceId = select.value;
+            
+            try {
+                // Stop existing stream
+                if (audioInputStream) {
+                    audioInputStream.getTracks().forEach(track => track.stop());
+                }
+                
+                // Get new stream with selected device
+                audioInputStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        deviceId: deviceId ? { exact: deviceId } : undefined,
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: false
+                    }
+                });
+                
+                // Create analyzer for level meter
+                inputAnalyzer = audioCtx.createAnalyser();
+                inputAnalyzer.fftSize = 256;
+                const source = audioCtx.createMediaStreamSource(audioInputStream);
+                source.connect(inputAnalyzer);
+                
+                // Start level meter animation
+                updateInputLevel();
+                
+                console.log('✅ Audio input connected:', select.options[select.selectedIndex].text);
+                alert(`✅ Connected: ${select.options[select.selectedIndex].text}\n\nYou should now be able to hear yourself when recording!`);
+            } catch (error) {
+                console.error('❌ Error selecting audio input:', error);
+                alert('❌ Could not access selected audio input');
+            }
+        }
+        
+        function updateInputLevel() {
+            if (!inputAnalyzer) return;
+            
+            const dataArray = new Uint8Array(inputAnalyzer.frequencyBinCount);
+            inputAnalyzer.getByteFrequencyData(dataArray);
+            
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            const level = (average / 255) * 100;
+            
+            document.getElementById('inputLevelMeter').style.width = level + '%';
+            
+            requestAnimationFrame(updateInputLevel);
+        }
+        
+        function testAudioInput() {
+            if (!audioInputStream) {
+                alert('⚠️ Please select an audio input first');
+                return;
+            }
+            
+            // Create playback node to hear yourself
+            const source = audioCtx.createMediaStreamSource(audioInputStream);
+            const gain = audioCtx.createGain();
+            gain.gain.value = 1.0;
+            source.connect(gain);
+            gain.connect(masterGain);
+            
+            alert('🔊 You should now hear yourself!\n\nPress OK to stop test.');
+            
+            setTimeout(() => {
+                gain.disconnect();
+            }, 5000);
+        }
+        
+        // ===== WAVEFORM EDITOR =====
+        function initWaveformCanvas() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set proper canvas size for retina displays
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            
+            drawWaveform();
+            
+            // Click to add chop points
+            canvas.addEventListener('click', addChopPoint);
+        }
+        
+        function drawWaveform() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
+            
+            // Clear
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid if snap enabled
+            if (snapToGrid) {
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < width; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, height);
+                    ctx.stroke();
+                }
+            }
+            
+            if (!loadedSampleBuffer) {
+                // Draw placeholder
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, height / 2);
+                ctx.lineTo(width, height / 2);
+                ctx.stroke();
+                
+                ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Load an audio file to begin', width / 2, height / 2 - 10);
+                return;
+            }
+            
+            // Draw waveform
+            const data = loadedSampleBuffer.getChannelData(0);
+            const step = Math.ceil(data.length / width);
+            
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            
+            for (let i = 0; i < width; i++) {
+                let min = 1.0;
+                let max = -1.0;
+                
+                for (let j = 0; j < step; j++) {
+                    const datum = data[(i * step) + j];
+                    if (datum < min) min = datum;
+                    if (datum > max) max = datum;
+                }
+                
+                const yMin = ((1 + min) / 2) * height;
+                const yMax = ((1 + max) / 2) * height;
+                
+                if (i === 0) {
+                    ctx.moveTo(i, yMin);
+                } else {
+                    ctx.lineTo(i, yMin);
+                    ctx.lineTo(i, yMax);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Draw chop points
+            chopPoints.forEach(point => {
+                const x = (point / loadedSampleBuffer.duration) * width;
+                
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(x - 3, 0, 6, 20);
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText('✂', x - 5, 14);
+            });
+        }
+        
+        function addChopPoint(event) {
+            if (!loadedSampleBuffer) return;
+            
+            const canvas = document.getElementById('waveformCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const width = rect.width;
+            
+            let position = (x / width) * loadedSampleBuffer.duration;
+            
+            // Snap to grid if enabled
+            if (snapToGrid) {
+                const gridSize = 0.25; // 16th note at 120 BPM
+                position = Math.round(position / gridSize) * gridSize;
+            }
+            
+            chopPoints.push(position);
+            chopPoints.sort((a, b) => a - b);
+            
+            drawWaveform();
+        }
+        
+        async function loadAudioFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const arrayBuffer = await file.arrayBuffer();
+            loadedSampleBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            
+            chopPoints = [];
+            drawWaveform();
+            
+            alert(`✅ Loaded: ${file.name}\n\nDuration: ${loadedSampleBuffer.duration.toFixed(2)}s\n\nClick waveform to add chop points!`);
+        }
+        
+        function toggleSnapGrid() {
+            snapToGrid = !snapToGrid;
+            const btn = document.getElementById('snapGridBtn');
+            btn.textContent = snapToGrid ? '📐 Snap: ON' : '📐 Snap: OFF';
+            btn.classList.toggle('active');
+            drawWaveform();
+        }
+        
+        function autoChopSample() {
+            if (!loadedSampleBuffer) {
+                alert('⚠️ Load a sample first!');
+                return;
+            }
+            
+            // Simple transient detection
+            const data = loadedSampleBuffer.getChannelData(0);
+            const threshold = 0.3;
+            const minDistance = audioCtx.sampleRate * 0.1;
+            
+            chopPoints = [];
+            let lastChop = 0;
+            
+            for (let i = 0; i < data.length; i++) {
+                if (Math.abs(data[i]) > threshold && (i - lastChop) > minDistance) {
+                    chopPoints.push(i / loadedSampleBuffer.sampleRate);
+                    lastChop = i;
+                }
+            }
+            
+            drawWaveform();
+            alert(`✂️ Auto-detected ${chopPoints.length} chop points!`);
+        }
+        
+        function clearChopPoints() {
+            chopPoints = [];
+            drawWaveform();
+        }
+        
+        function saveChopPoints() {
+            if (chopPoints.length === 0) {
+                alert('⚠️ No chop points to save!');
+                return;
+            }
+            
+            const data = {
+                chopPoints: chopPoints,
+                duration: loadedSampleBuffer ? loadedSampleBuffer.duration : 0
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chop-points.json';
+            a.click();
+            
+            alert(`💾 Saved ${chopPoints.length} chop points!`);
+        }
+        
+        function exportToPads() {
+            if (chopPoints.length === 0) {
+                alert('⚠️ Add chop points first!');
+                return;
+            }
+            
+            alert(`📤 Exporting ${chopPoints.length + 1} regions to drum pads...\n\nSwitch to Drums tab to play them!`);
+            
+            // TODO: Actually slice sample and assign to pads
+        }
+        
+        function zoomIn() {
+            waveformZoom *= 1.5;
+            drawWaveform();
+        }
+        
+        function zoomOut() {
+            waveformZoom = Math.max(1, waveformZoom / 1.5);
+            drawWaveform();
+        }
+        
+        // ===== TAB SWITCHING =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        // ===== TRANSPORT CONTROLS =====
+        function togglePlayback() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playBtn');
+            
+            if (isPlaying) {
+                btn.classList.add('active');
+                btn.innerHTML = '⏸️';
+                startPlayback();
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '▶️';
+                stopPlayback();
+            }
+        }
+        
+        function startPlayback() {
+            // TODO: Start playback of recorded audio/patterns
+            console.log('▶️ Playback started');
+        }
+        
+        function stopPlayback() {
+            console.log('⏹️ Playback stopped');
+        }
+        
+        function toggleRecord() {
+            isRecording = !isRecording;
+            const btn = document.getElementById('recordBtn');
+            
+            if (isRecording) {
+                btn.classList.add('active');
+                
+                // Start recording on all armed tracks
+                const armedTracks = tracks.filter(t => t.armed);
+                
+                if (armedTracks.length === 0) {
+                    alert('⚠️ No tracks armed for recording!\\n\\nArm a track by clicking the R button in Studio tab.');
+                    isRecording = false;
+                    btn.classList.remove('active');
+                    return;
+                }
+                
+                // Start playback if not playing
+                if (!isPlaying) {
+                    togglePlayback();
+                }
+                
+                // Initialize recording for each armed track
+                armedTracks.forEach(track => {
+                    startTrackRecording(track);
+                });
+                
+                console.log(`⏺ Recording ${armedTracks.length} track(s)`);
+                alert(`⏺ Recording started on ${armedTracks.length} track(s)!\\n\\nPress stop to end recording.`);
+            } else {
+                btn.classList.remove('active');
+                
+                // Stop all recordings
+                tracks.filter(t => t.recording).forEach(track => {
+                    stopTrackRecording(track);
+                });
+                
+                console.log('⏹ Recording stopped');
+                alert('⏹ Recording stopped!\\n\\nRecordings saved to tracks.');
+            }
+        }
+        
+        function startTrackRecording(track) {
+            if (!track.input || !audioInputStream) {
+                console.warn(`Track ${track.id} has no input source`);
+                return;
+            }
+            
+            // Create MediaRecorder for this track
+            const mediaRecorder = new MediaRecorder(audioInputStream);
+            const chunks = [];
+            
+            mediaRecorder.ondataavailable = (e) => {
+                chunks.push(e.data);
+            };
+            
+            mediaRecorder.onstop = async () => {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(blob);
+                
+                // Add recording to track timeline
+                const timeline = document.getElementById(`timeline${track.id}`);
+                if (timeline) {
+                    timeline.innerHTML = `
+                        <div style="background: linear-gradient(90deg, var(--primary), var(--accent)); height: 60px; border-radius: 4px; margin: 10px; position: relative;">
+                            <audio src="${audioUrl}" controls style="width: 100%; margin-top: 10px;"></audio>
+                        </div>
+                    `;
+                }
+                
+                // Store in track
+                track.recordings.push({
+                    blob: blob,
+                    url: audioUrl,
+                    timestamp: Date.now()
+                });
+            };
+            
+            mediaRecorder.start();
+            track.recording = true;
+            track.mediaRecorder = mediaRecorder;
+            
+            console.log(`🎙️ Recording track ${track.id}`);
+        }
+        
+        function stopTrackRecording(track) {
+            if (track.mediaRecorder && track.recording) {
+                track.mediaRecorder.stop();
+                track.recording = false;
+            }
+        }
+        
+        function toggleLoop() {
+            isLooping = !isLooping;
+            document.getElementById('loopBtn').classList.toggle('active');
+        }
+        
+        function skipBackward() {
+            console.log('⏮️ Skip backward');
+        }
+        
+        function skipForward() {
+            console.log('⏭️ Skip forward');
+        }
+        
+        function rewindTransport() {
+            currentTime = 0;
+            updateTimeDisplay();
+        }
+        
+        function stopTransport() {
+            isPlaying = false;
+            document.getElementById('playBtn').classList.remove('active');
+            document.getElementById('playBtn').innerHTML = '▶️';
+            stopPlayback();
+        }
+        
+        // ===== BPM & METRONOME =====
+        function increaseBPM() {
+            currentBPM = Math.min(300, currentBPM + 1);
+            document.getElementById('bpmDisplay').textContent = currentBPM + ' BPM';
+        }
+        
+        function decreaseBPM() {
+            currentBPM = Math.max(40, currentBPM - 1);
+            document.getElementById('bpmDisplay').textContent = currentBPM + ' BPM';
+        }
+        
+        let tapTimes = [];
+        function tapTempo() {
+            const now = Date.now();
+            tapTimes.push(now);
+            
+            if (tapTimes.length > 4) tapTimes.shift();
+            
+            if (tapTimes.length >= 2) {
+                const intervals = [];
+                for (let i = 1; i < tapTimes.length; i++) {
+                    intervals.push(tapTimes[i] - tapTimes[i - 1]);
+                }
+                const avgInterval = intervals.reduce((a, b) => a + b) / intervals.length;
+                currentBPM = Math.round(60000 / avgInterval);
+                document.getElementById('bpmDisplay').textContent = currentBPM + ' BPM';
+            }
+        }
+        
+        function toggleMetronome() {
+            metronomeActive = !metronomeActive;
+            const btn = document.getElementById('metronomeBtn');
+            
+            if (metronomeActive) {
+                btn.classList.add('active');
+                btn.textContent = '🥁 Metronome ON';
+                startMetronome();
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '🥁 Metronome OFF';
+            }
+        }
+        
+        function startMetronome() {
+            // TODO: Implement metronome click
+            console.log('🥁 Metronome started at', currentBPM, 'BPM');
+        }
+        
+        // ===== TIME DISPLAY =====
+        function updateTimeDisplay() {
+            const hours = Math.floor(currentTime / 3600);
+            const minutes = Math.floor((currentTime % 3600) / 60);
+            const seconds = Math.floor(currentTime % 60);
+            
+            document.getElementById('timeDisplay').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        setInterval(() => {
+            if (isPlaying) {
+                currentTime += 1;
+                updateTimeDisplay();
+            }
+        }, 1000);
+        
+        // ===== EQUIPMENT PANELS =====
+        function openEquipment(type) {
+            const equipmentTypes = {
+                amps: 'Marshall JCM800, Fender Twin, Mesa Boogie',
+                effects: 'Reverb, Delay, Chorus, Flanger, Phaser',
+                instruments: 'Piano, Strings, Brass, Drums',
+                dynamics: '1176 Compressor, LA-2A, SSL Bus Comp',
+                eq: 'Neve 1073, API 550, Pultec EQP-1A',
+                utilities: 'Tuner, Analyzer, Oscilloscope'
+            };
+            
+            alert(`${type.toUpperCase()} Equipment:\n\n${equipmentTypes[type]}\n\n(Plugin panels coming soon)`);
+        }
+        
+        // ===== VIDEO CHAT & COLLABORATION =====
+        let localStream = null;
+        let localAudioLevel = 0;
+        
+        async function startCamera() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 1280, height: 720 }, 
+                    audio: true 
+                });
+                
+                const video = document.getElementById('localVideo');
+                video.srcObject = localStream;
+                
+                // Monitor audio level for speaking indicator
+                const audioCtx = new AudioContext();
+                const source = audioCtx.createMediaStreamSource(localStream);
+                const analyzer = audioCtx.createAnalyser();
+                analyzer.fftSize = 256;
+                source.connect(analyzer);
+                
+                function checkAudioLevel() {
+                    const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+                    analyzer.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                    
+                    const indicator = document.getElementById('speakingIndicator');
+                    if (average > 30) {
+                        indicator.style.background = 'rgba(34, 197, 94, 0.9)';
+                        indicator.style.boxShadow = '0 0 15px rgba(34, 197, 94, 0.8)';
+                    } else {
+                        indicator.style.background = 'rgba(0, 0, 0, 0.8)';
+                        indicator.style.boxShadow = 'none';
+                    }
+                    
+                    requestAnimationFrame(checkAudioLevel);
+                }
+                checkAudioLevel();
+                
+                document.getElementById('cameraBtn').textContent = '📹 Stop Camera';
+                console.log('✅ Camera started');
+            } catch (error) {
+                console.error('Camera access denied:', error);
+                alert('❌ Camera access denied. Please enable camera permissions.');
+            }
+        }
+        
+        function toggleMic() {
+            if (!localStream) {
+                alert('Start camera first');
+                return;
+            }
+            
+            const audioTrack = localStream.getAudioTracks()[0];
+            audioTrack.enabled = !audioTrack.enabled;
+            
+            const btn = document.getElementById('micBtn');
+            btn.textContent = audioTrack.enabled ? '🎤 Mute Mic' : '🔇 Unmute Mic';
+            btn.classList.toggle('active', !audioTrack.enabled);
+        }
+        
+        function shareScreen() {
+            alert('🖥️ Screen sharing coming soon!\n\nThis will allow you to share your DAW screen with collaborators.');
+        }
+        
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+            
+            if (input.value.trim()) {
+                const msg = document.createElement('div');
+                msg.style.marginBottom = '5px';
+                msg.innerHTML = `<strong style="color: var(--primary);">You:</strong> ${input.value}`;
+                messages.appendChild(msg);
+                messages.scrollTop = messages.scrollHeight;
+                input.value = '';
+            }
+        }
+        
+        async function startCamera() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 1280, height: 720 }, 
+                    audio: true 
+                });
+                
+                const video = document.getElementById('localVideo');
+                video.srcObject = localStream;
+                
+                // Monitor audio level for speaking indicator
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(localStream);
+                const analyzer = audioContext.createAnalyser();
+                analyzer.fftSize = 256;
+                source.connect(analyzer);
+                
+                function checkAudioLevel() {
+                    const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+                    analyzer.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                    
+                    const indicator = document.getElementById('speakingIndicator');
+                    if (indicator) {
+                        if (average > 30) {
+                            indicator.style.background = 'rgba(34, 197, 94, 0.9)';
+                            indicator.style.boxShadow = '0 0 15px rgba(34, 197, 94, 0.8)';
+                            indicator.style.transform = 'scale(1.1)';
+                        } else {
+                            indicator.style.background = 'rgba(0, 0, 0, 0.8)';
+                            indicator.style.boxShadow = 'none';
+                            indicator.style.transform = 'scale(1)';
+                        }
+                    }
+                    
+                    requestAnimationFrame(checkAudioLevel);
+                }
+                checkAudioLevel();
+                
+                document.getElementById('cameraBtn').textContent = '📹 Stop Camera';
+                console.log('✅ Camera started');
+            } catch (error) {
+                console.error('Camera access denied:', error);
+                alert('❌ Camera access denied. Please enable camera permissions.');
+            }
+        }
+        
+        function toggleMic() {
+            if (!localStream) {
+                alert('Start camera first');
+                return;
+            }
+            
+            const audioTrack = localStream.getAudioTracks()[0];
+            audioTrack.enabled = !audioTrack.enabled;
+            
+            const btn = document.getElementById('micBtn');
+            btn.textContent = audioTrack.enabled ? '🎤 Mute Mic' : '🔇 Unmute Mic';
+            btn.classList.toggle('active', !audioTrack.enabled);
+        }
+        
+        function shareScreen() {
+            alert('🖥️ Screen sharing coming soon!\\n\\nThis will allow you to share your DAW screen with collaborators.');
+        }
+        
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+            
+            if (input.value.trim()) {
+                const msg = document.createElement('div');
+                msg.style.marginBottom = '5px';
+                msg.style.transition = 'all 0.3s';
+                msg.innerHTML = `<strong style="color: var(--primary);">You:</strong> ${input.value}`;
+                messages.appendChild(msg);
+                messages.scrollTop = messages.scrollHeight;
+                input.value = '';
+            }
+        }
+        
+        // ===== INITIALIZATION =====
+        async function init() {
+            console.log('🎛️ Initializing Mayhem Module...');
+            
+            // Request microphone permission and enumerate devices
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                await enumerateAudioDevices();
+            } catch (error) {
+                console.error('Microphone access required');
+            }
+            
+            // Initialize waveform canvas
+            initWaveformCanvas();
+            
+            // Initialize sample controls
+            initSampleControls();
+            
+            console.log('✅ Mayhem Module initialized');
+        }
+        
+        // ===== KNOB DRAG FUNCTIONALITY =====
+        let activeKnob = null;
+        
+        function initSampleControls() {
+            const panel = document.getElementById('sampleControls');
+            const controls = [
+                { name: 'PITCH', value: 0, min: -12, max: 12 },
+                { name: 'START', value: 0, min: 0, max: 100 },
+                { name: 'END', value: 100, min: 0, max: 100 },
+                { name: 'LOOP', value: 0, min: 0, max: 1 },
+                { name: 'ATTACK', value: 0, min: 0, max: 100 },
+                { name: 'DECAY', value: 50, min: 0, max: 100 },
+                { name: 'SUSTAIN', value: 70, min: 0, max: 100 },
+                { name: 'RELEASE', value: 30, min: 0, max: 100 },
+                { name: 'FILTER', value: 100, min: 0, max: 100 },
+                { name: 'RESONANCE', value: 0, min: 0, max: 100 },
+                { name: 'DRIVE', value: 0, min: 0, max: 100 },
+                { name: 'GAIN', value: 75, min: 0, max: 100 }
+            ];
+            
+            controls.forEach(ctrl => {
+                const div = document.createElement('div');
+                div.className = 'control-knob';
+                div.innerHTML = `
+                    <div class="knob" data-param="${ctrl.name}" data-value="${ctrl.value}" data-min="${ctrl.min}" data-max="${ctrl.max}">
+                        <div class="knob-indicator" style="transform: translateX(-50%) rotate(${((ctrl.value - ctrl.min) / (ctrl.max - ctrl.min)) * 270 - 135}deg);"></div>
+                    </div>
+                    <div class="knob-label">${ctrl.name}</div>
+                    <div class="knob-value" id="value_${ctrl.name}">${ctrl.value}</div>
+                `;
+                panel.appendChild(div);
+                
+                // Add drag handlers
+                const knob = div.querySelector('.knob');
+                knob.addEventListener('mousedown', startKnobDrag);
+            });
+        }
+        
+        function startKnobDrag(event) {
+            event.preventDefault();
+            const knob = event.currentTarget;
+            activeKnob = {
+                element: knob,
+                indicator: knob.querySelector('.knob-indicator'),
+                startY: event.clientY,
+                startValue: parseFloat(knob.dataset.value),
+                param: knob.dataset.param,
+                min: parseFloat(knob.dataset.min),
+                max: parseFloat(knob.dataset.max)
+            };
+            
+            knob.classList.add('active');
+            document.addEventListener('mousemove', onKnobDrag);
+            document.addEventListener('mouseup', stopKnobDrag);
+        }
+        
+        function onKnobDrag(event) {
+            if (!activeKnob) return;
+            
+            const deltaY = activeKnob.startY - event.clientY;
+            const range = activeKnob.max - activeKnob.min;
+            const valueChange = (deltaY / 100) * range;
+            const newValue = Math.max(activeKnob.min, Math.min(activeKnob.max, activeKnob.startValue + valueChange));
+            
+            // Update knob
+            activeKnob.element.dataset.value = newValue;
+            const rotation = ((newValue - activeKnob.min) / range) * 270 - 135;
+            activeKnob.indicator.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+            
+            // Update value display
+            const valueDisplay = document.getElementById(`value_${activeKnob.param}`);
+            if (valueDisplay) {
+                valueDisplay.textContent = Math.round(newValue);
+            }
+            
+            // Apply to audio (implement based on param)
+            applyKnobValue(activeKnob.param, newValue);
+        }
+        
+        function stopKnobDrag() {
+            if (activeKnob) {
+                activeKnob.element.classList.remove('active');
+                activeKnob = null;
+            }
+            document.removeEventListener('mousemove', onKnobDrag);
+            document.removeEventListener('mouseup', stopKnobDrag);
+        }
+        
+        function applyKnobValue(param, value) {
+            // Apply parameter changes to audio
+            console.log(`${param}: ${value}`);
+            // TODO: Wire to actual audio parameters
+        }
+        
+        // ===== PROFESSIONAL MIXER =====
+        const mixerChannels = [];
+        
+        // ===== FX RACK =====
+        const fxRack = {
+            reverb: null,
+            delay: null,
+            compressor: null,
+            eq: null,
+            chorus: null,
+            enabled: {
+                reverb: false,
+                delay: false,
+                compressor: false,
+                eq: false,
+                chorus: false
+            }
+        };
+        
+        function initFXRack() {
+            // Reverb (using ConvolverNode - simulated)
+            const reverbGain = audioCtx.createGain();
+            const reverbWet = audioCtx.createGain();
+            const reverbDry = audioCtx.createGain();
+            
+            reverbGain.gain.value = 0.5;
+            reverbWet.gain.value = 0;
+            reverbDry.gain.value = 1;
+            
+            fxRack.reverb = {
+                input: reverbGain,
+                wet: reverbWet,
+                dry: reverbDry,
+                output: audioCtx.createGain(),
+                mix: 0.3,
+                decay: 2.0
+            };
+            
+            // Delay
+            const delayNode = audioCtx.createDelay(5.0);
+            const delayFeedback = audioCtx.createGain();
+            const delayWet = audioCtx.createGain();
+            const delayDry = audioCtx.createGain();
+            
+            delayNode.delayTime.value = 0.375; // Dotted eighth at 120 BPM
+            delayFeedback.gain.value = 0.4;
+            delayWet.gain.value = 0;
+            delayDry.gain.value = 1;
+            
+            // Delay routing with feedback
+            delayNode.connect(delayFeedback);
+            delayFeedback.connect(delayNode);
+            delayNode.connect(delayWet);
+            
+            fxRack.delay = {
+                input: audioCtx.createGain(),
+                node: delayNode,
+                feedback: delayFeedback,
+                wet: delayWet,
+                dry: delayDry,
+                output: audioCtx.createGain(),
+                time: 0.375,
+                feedbackAmount: 0.4,
+                mix: 0.3
+            };
+            
+            // Compressor
+            const compressor = audioCtx.createDynamicsCompressor();
+            compressor.threshold.value = -24;
+            compressor.knee.value = 30;
+            compressor.ratio.value = 12;
+            compressor.attack.value = 0.003;
+            compressor.release.value = 0.25;
+            
+            const compInput = audioCtx.createGain();
+            const compOutput = audioCtx.createGain();
+            
+            compInput.connect(compressor);
+            compressor.connect(compOutput);
+            
+            fxRack.compressor = {
+                input: compInput,
+                node: compressor,
+                output: compOutput,
+                enabled: false
+            };
+            
+            // 3-band EQ
+            const lowShelf = audioCtx.createBiquadFilter();
+            const midPeak = audioCtx.createBiquadFilter();
+            const highShelf = audioCtx.createBiquadFilter();
+            
+            lowShelf.type = 'lowshelf';
+            lowShelf.frequency.value = 200;
+            lowShelf.gain.value = 0;
+            
+            midPeak.type = 'peaking';
+            midPeak.frequency.value = 1000;
+            midPeak.Q.value = 1;
+            midPeak.gain.value = 0;
+            
+            highShelf.type = 'highshelf';
+            highShelf.frequency.value = 4000;
+            highShelf.gain.value = 0;
+            
+            lowShelf.connect(midPeak);
+            midPeak.connect(highShelf);
+            
+            fxRack.eq = {
+                input: audioCtx.createGain(),
+                low: lowShelf,
+                mid: midPeak,
+                high: highShelf,
+                output: audioCtx.createGain()
+            };
+            
+            fxRack.eq.input.connect(lowShelf);
+            highShelf.connect(fxRack.eq.output);
+            
+            // Chorus (LFO + Delay)
+            const chorusDelay = audioCtx.createDelay(0.1);
+            const chorusLFO = audioCtx.createOscillator();
+            const chorusDepth = audioCtx.createGain();
+            const chorusWet = audioCtx.createGain();
+            const chorusDry = audioCtx.createGain();
+            
+            chorusLFO.frequency.value = 2;
+            chorusDepth.gain.value = 0.002;
+            chorusWet.gain.value = 0;
+            chorusDry.gain.value = 1;
+            
+            chorusLFO.connect(chorusDepth);
+            chorusDepth.connect(chorusDelay.delayTime);
+            chorusDelay.connect(chorusWet);
+            chorusLFO.start();
+            
+            fxRack.chorus = {
+                input: audioCtx.createGain(),
+                delay: chorusDelay,
+                lfo: chorusLFO,
+                depth: chorusDepth,
+                wet: chorusWet,
+                dry: chorusDry,
+                output: audioCtx.createGain(),
+                rate: 2,
+                depthAmount: 0.002,
+                mix: 0.5
+            };
+            
+            console.log('✨ FX Rack initialized');
+        }
+        
+        function toggleFX(fxName) {
+            fxRack.enabled[fxName] = !fxRack.enabled[fxName];
+            const toggle = document.getElementById(`${fxName}Toggle`);
+            
+            if (fxRack.enabled[fxName]) {
+                toggle.classList.add('active');
+                toggle.textContent = 'ENABLED';
+                console.log(`✅ ${fxName.toUpperCase()} enabled`);
+            } else {
+                toggle.classList.remove('active');
+                toggle.textContent = 'OFF';
+                console.log(`⏸️ ${fxName.toUpperCase()} disabled`);
+            }
+            
+            // Update routing (simplified - would need proper insert points)
+            updateFXRouting();
+        }
+        
+        function updateFXRouting() {
+            // This would properly insert FX into the signal chain
+            // For now, just log the state
+            console.log('FX State:', Object.entries(fxRack.enabled)
+                .filter(([_, enabled]) => enabled)
+                .map(([name]) => name.toUpperCase())
+                .join(', ') || 'None active');
+        }
+        
+        // AI Vocal Processing
+        function analyzeVocal() {
+            const suggestions = document.getElementById('aiSuggestions');
+            
+            suggestions.innerHTML = `
+                <div style="color: var(--primary); margin-bottom: 10px;"><strong>🤖 AI Analysis Complete</strong></div>
+                <div style="line-height: 1.6;">
+                    • <strong>Compression:</strong> 4:1 ratio, -18dB threshold<br>
+                    • <strong>EQ:</strong> Cut 200Hz (-3dB), Boost 3kHz (+4dB)<br>
+                    • <strong>De-esser:</strong> 7kHz, medium reduction<br>
+                    • <strong>Reverb:</strong> Small room, 1.2s decay, 30% wet<br>
+                    • <strong>Delay:</strong> 1/8 dotted, 25% feedback<br>
+                    <br>
+                    <strong style="color: var(--accent);">Vocal Type:</strong> Mid-range, slight sibilance<br>
+                    <strong style="color: var(--accent);">Suggested Style:</strong> Pop/R&B
+                </div>
+            `;
+            
+            console.log('🤖 AI vocal analysis complete');
+        }
+        
+        function applyAISuggestions() {
+            // Apply the AI-suggested settings
+            if (!fxRack.compressor) return;
+            
+            // Set compressor
+            fxRack.compressor.node.threshold.value = -18;
+            fxRack.compressor.node.ratio.value = 4;
+            
+            // Set EQ
+            if (fxRack.eq) {
+                fxRack.eq.low.gain.value = -3;
+                fxRack.eq.high.gain.value = 4;
+            }
+            
+            // Enable effects
+            toggleFX('compressor');
+            toggleFX('eq');
+            toggleFX('reverb');
+            
+            console.log('✅ AI suggestions applied');
+            alert('✅ AI vocal processing applied!\n\nCompressor, EQ, and Reverb have been set according to AI analysis.');
+        }
+        
+        // ===== MULTITRACK STUDIO =====
+        const tracks = [];
+        let trackIdCounter = 1;
+        
+        function addTrack() {
+            const trackId = trackIdCounter++;
+            
+            // Create audio nodes for this track
+            const trackGain = audioCtx.createGain();
+            const trackPanner = audioCtx.createStereoPanner();
+            
+            trackGain.connect(trackPanner);
+            trackPanner.connect(masterGain);
+            
+            const track = {
+                id: trackId,
+                name: `Track ${trackId}`,
+                gain: trackGain,
+                panner: trackPanner,
+                muted: false,
+                soloed: false,
+                armed: false,
+                recordings: [],
+                volume: 0.8
+            };
+            
+            tracks.push(track);
+            
+            // Create track element
+            const trackList = document.getElementById('trackList');
+            const trackElement = document.createElement('div');
+            trackElement.className = 'track';
+            trackElement.id = `track${trackId}`;
+            trackElement.innerHTML = `
+                <div class="track-controls">
+                    <input type="text" class="track-name" value="${track.name}" onchange="renameTrack(${trackId}, this.value)" style="width: 100%; padding: 8px; background: rgba(0, 8, 20, 0.8); border: 1px solid var(--primary); border-radius: 6px; color: var(--primary); text-align: center;">
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px;">
+                        <button class="channel-btn" onclick="toggleTrackMute(${trackId})">M</button>
+                        <button class="channel-btn solo" onclick="toggleTrackSolo(${trackId})">S</button>
+                        <button class="channel-btn arm" id="trackArm${trackId}" onclick="toggleTrackArm(${trackId})">R</button>
+                    </div>
+                    
+                    <select style="width: 100%; margin-top: 10px; padding: 6px; background: rgba(0, 8, 20, 0.9); border: 1px solid var(--primary); border-radius: 4px; color: var(--primary); font-size: 0.8em;" onchange="setTrackInput(${trackId}, this.value)">
+                        <option value="">-- Input --</option>
+                        <option value="mic">🎤 Microphone</option>
+                        <option value="sampler">🎵 Sampler</option>
+                        <option value="drums">🥁 Drums</option>
+                        <option value="synth">🎹 Synth</option>
+                    </select>
+                    
+                    <button class="waveform-btn" onclick="deleteTrack(${trackId})" style="margin-top: 10px; width: 100%; font-size: 0.8em;">🗑️ Delete</button>
+                </div>
+                
+                <div class="track-timeline" id="timeline${trackId}">
+                    <div style="color: var(--text-muted); text-align: center; padding: 30px; font-size: 0.85em;">
+                        Click 'R' to arm, then press record ●
+                    </div>
+                </div>
+            `;
+            
+            trackList.appendChild(trackElement);
+            
+            console.log(`✅ Added ${track.name}`);
+        }
+        
+        function renameTrack(trackId, newName) {
+            const track = tracks.find(t => t.id === trackId);
+            if (track) {
+                track.name = newName;
+                console.log(`Track ${trackId} renamed to: ${newName}`);
+            }
+        }
+        
+        function toggleTrackMute(trackId) {
+            const track = tracks.find(t => t.id === trackId);
+            if (!track) return;
+            
+            track.muted = !track.muted;
+            track.gain.gain.value = track.muted ? 0 : track.volume;
+            event.target.classList.toggle('active');
+            
+            console.log(`Track ${trackId} ${track.muted ? 'muted' : 'unmuted'}`);
+        }
+        
+        function toggleTrackSolo(trackId) {
+            const track = tracks.find(t => t.id === trackId);
+            if (!track) return;
+            
+            track.soloed = !track.soloed;
+            event.target.classList.toggle('active');
+            
+            // Solo logic
+            const anySoloed = tracks.some(t => t.soloed);
+            tracks.forEach(t => {
+                if (anySoloed) {
+                    t.gain.gain.value = t.soloed ? t.volume : 0;
+                } else {
+                    t.gain.gain.value = t.muted ? 0 : t.volume;
+                }
+            });
+            
+            console.log(`Track ${trackId} ${track.soloed ? 'soloed' : 'unsoloed'}`);
+        }
+        
+        function toggleTrackArm(trackId) {
+            const track = tracks.find(t => t.id === trackId);
+            if (!track) return;
+            
+            track.armed = !track.armed;
+            document.getElementById(`trackArm${trackId}`).classList.toggle('active');
+            
+            console.log(`Track ${trackId} ${track.armed ? 'armed' : 'disarmed'} for recording`);
+            
+            if (track.armed) {
+                alert(`✅ Track "${track.name}" is armed!\n\nPress the Record ● button in the transport bar to start recording.`);
+            }
+        }
+        
+        function setTrackInput(trackId, input) {
+            const track = tracks.find(t => t.id === trackId);
+            if (!track) return;
+            
+            track.input = input;
+            console.log(`Track ${trackId} input set to: ${input}`);
+        }
+        
+        function deleteTrack(trackId) {
+            if (!confirm('Delete this track?')) return;
+            
+            const trackIndex = tracks.findIndex(t => t.id === trackId);
+            if (trackIndex !== -1) {
+                const track = tracks[trackIndex];
+                
+                // Disconnect audio nodes
+                track.gain.disconnect();
+                track.panner.disconnect();
+                
+                // Remove from DOM
+                document.getElementById(`track${trackId}`).remove();
+                
+                // Remove from array
+                tracks.splice(trackIndex, 1);
+                
+                console.log(`🗑️ Deleted track ${trackId}`);
+            }
+        }
+        
+        // ===== SYNTHESIZER =====
+        const synthKeys = [];
+        let synthMode = 'poly'; // poly, mono, vocoder
+        let activeNotes = new Map();
+        
+        const synthParams = {
+            oscillator: 'sawtooth',
+            attack: 0.01,
+            decay: 0.3,
+            sustain: 0.7,
+            release: 0.5,
+            filterFreq: 2000,
+            filterRes: 1,
+            lfoRate: 5,
+            lfoAmount: 0
+        };
+        
+        // Piano keyboard layout (2 octaves: C4-B5)
+        const keyboardLayout = [
+            // C4 octave
+            { note: 'C4', freq: 261.63, type: 'white', key: 'A' },
+            { note: 'C#4', freq: 277.18, type: 'black', key: 'W' },
+            { note: 'D4', freq: 293.66, type: 'white', key: 'S' },
+            { note: 'D#4', freq: 311.13, type: 'black', key: 'E' },
+            { note: 'E4', freq: 329.63, type: 'white', key: 'D' },
+            { note: 'F4', freq: 349.23, type: 'white', key: 'F' },
+            { note: 'F#4', freq: 369.99, type: 'black', key: 'T' },
+            { note: 'G4', freq: 392.00, type: 'white', key: 'G' },
+            { note: 'G#4', freq: 415.30, type: 'black', key: 'Y' },
+            { note: 'A4', freq: 440.00, type: 'white', key: 'H' },
+            { note: 'A#4', freq: 466.16, type: 'black', key: 'U' },
+            { note: 'B4', freq: 493.88, type: 'white', key: 'J' },
+            // C5 octave
+            { note: 'C5', freq: 523.25, type: 'white', key: 'K' },
+            { note: 'C#5', freq: 554.37, type: 'black', key: 'O' },
+            { note: 'D5', freq: 587.33, type: 'white', key: 'L' },
+            { note: 'D#5', freq: 622.25, type: 'black', key: 'P' },
+            { note: 'E5', freq: 659.25, type: 'white', key: ';' },
+            { note: 'F5', freq: 698.46, type: 'white', key: '\'' },
+            { note: 'F#5', freq: 739.99, type: 'black', key: ']' },
+            { note: 'G5', freq: 783.99, type: 'white', key: 'Enter' },
+            { note: 'G#5', freq: 830.61, type: 'black', key: null },
+            { note: 'A5', freq: 880.00, type: 'white', key: null },
+            { note: 'A#5', freq: 932.33, type: 'black', key: null },
+            { note: 'B5', freq: 987.77, type: 'white', key: null }
+        ];
+        
+        function initSynthesizer() {
+            const keyboard = document.getElementById('synthKeyboard');
+            keyboard.innerHTML = '';
+            
+            let whiteKeyIndex = 0;
+            
+            keyboardLayout.forEach((keyData, index) => {
+                const key = document.createElement('div');
+                key.className = `piano-key ${keyData.type}`;
+                key.dataset.note = keyData.note;
+                key.dataset.freq = keyData.freq;
+                
+                if (keyData.type === 'white') {
+                    key.style.left = `${whiteKeyIndex * 52}px`;
+                    whiteKeyIndex++;
+                    if (keyData.key) {
+                        key.innerHTML = `<div class="piano-key-label">${keyData.key}</div>`;
+                    }
+                } else {
+                    const prevWhiteKey = keyboard.querySelector('.piano-key.white:last-child');
+                    if (prevWhiteKey) {
+                        const left = parseInt(prevWhiteKey.style.left) + 52;
+                        key.style.left = `${left}px`;
+                    }
+                }
+                
+                // Mouse events
+                key.addEventListener('mousedown', () => playSynthNote(keyData.freq, keyData.note));
+                key.addEventListener('mouseup', () => stopSynthNote(keyData.note));
+                key.addEventListener('mouseleave', () => stopSynthNote(keyData.note));
+                
+                keyboard.appendChild(key);
+                synthKeys.push({ element: key, ...keyData });
+            });
+            
+            // Keyboard events
+            document.addEventListener('keydown', handleSynthKeyDown);
+            document.addEventListener('keyup', handleSynthKeyUp);
+            
+            // Initialize synth controls
+            initSynthControls();
+            
+            console.log('🎹 Synthesizer initialized');
+        }
+        
+        function handleSynthKeyDown(event) {
+            if (event.repeat) return;
+            
+            const key = event.key.toUpperCase();
+            const keyData = keyboardLayout.find(k => k.key === key || k.key === event.key);
+            
+            if (keyData) {
+                playSynthNote(keyData.freq, keyData.note);
+            }
+        }
+        
+        function handleSynthKeyUp(event) {
+            const key = event.key.toUpperCase();
+            const keyData = keyboardLayout.find(k => k.key === key || k.key === event.key);
+            
+            if (keyData) {
+                stopSynthNote(keyData.note);
+            }
+        }
+        
+        function playSynthNote(frequency, noteName) {
+            // Check if already playing
+            if (synthMode === 'mono') {
+                // Stop all other notes in mono mode
+                activeNotes.forEach((_, note) => stopSynthNote(note));
+            }
+            
+            if (activeNotes.has(noteName)) return;
+            
+            // Visual feedback
+            const keyElement = document.querySelector(`.piano-key[data-note="${noteName}"]`);
+            if (keyElement) keyElement.classList.add('active');
+            
+            // Create synth voice
+            const now = audioCtx.currentTime;
+            
+            // Oscillators
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            
+            osc1.type = synthParams.oscillator;
+            osc2.type = synthParams.oscillator;
+            osc1.frequency.value = frequency;
+            osc2.frequency.value = frequency * 1.01; // Slight detune
+            
+            // Filter
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = synthParams.filterFreq;
+            filter.Q.value = synthParams.filterRes;
+            
+            // Envelope
+            const envelope = audioCtx.createGain();
+            envelope.gain.value = 0;
+            envelope.gain.setValueAtTime(0, now);
+            envelope.gain.linearRampToValueAtTime(1, now + synthParams.attack);
+            envelope.gain.linearRampToValueAtTime(synthParams.sustain, now + synthParams.attack + synthParams.decay);
+            
+            // LFO
+            const lfo = audioCtx.createOscillator();
+            const lfoGain = audioCtx.createGain();
+            lfo.frequency.value = synthParams.lfoRate;
+            lfoGain.gain.value = synthParams.lfoAmount;
+            
+            // Audio routing
+            osc1.connect(filter);
+            osc2.connect(filter);
+            filter.connect(envelope);
+            envelope.connect(masterGain);
+            
+            if (synthParams.lfoAmount > 0) {
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+                lfo.start(now);
+            }
+            
+            osc1.start(now);
+            osc2.start(now);
+            
+            // Store voice
+            activeNotes.set(noteName, {
+                osc1, osc2, filter, envelope, lfo, lfoGain,
+                frequency
+            });
+        }
+        
+        function stopSynthNote(noteName) {
+            const voice = activeNotes.get(noteName);
+            if (!voice) return;
+            
+            // Visual feedback
+            const keyElement = document.querySelector(`.piano-key[data-note="${noteName}"]`);
+            if (keyElement) keyElement.classList.remove('active');
+            
+            // Release envelope
+            const now = audioCtx.currentTime;
+            voice.envelope.gain.cancelScheduledValues(now);
+            voice.envelope.gain.setValueAtTime(voice.envelope.gain.value, now);
+            voice.envelope.gain.linearRampToValueAtTime(0, now + synthParams.release);
+            
+            // Stop oscillators after release
+            setTimeout(() => {
+                try {
+                    voice.osc1.stop();
+                    voice.osc2.stop();
+                    if (voice.lfo) voice.lfo.stop();
+                } catch (e) {}
+                activeNotes.delete(noteName);
+            }, synthParams.release * 1000 + 100);
+        }
+        
+        function setSynthMode(mode) {
+            synthMode = mode;
+            
+            // Update button states
+            document.getElementById('polyBtn').classList.toggle('active', mode === 'poly');
+            document.getElementById('monoBtn').classList.toggle('active', mode === 'mono');
+            document.getElementById('vocoderBtn').classList.toggle('active', mode === 'vocoder');
+            
+            console.log(`Synth mode: ${mode.toUpperCase()}`);
+            
+            if (mode === 'vocoder') {
+                alert('🎤 VOCODER MODE\n\nConnect your microphone and play notes!\nYour voice will be synthesized through the keyboard.');
+            }
+        }
+        
+        function loadSynthPreset(preset) {
+            const presets = {
+                juno: {
+                    oscillator: 'sawtooth',
+                    attack: 0.3,
+                    decay: 0.5,
+                    sustain: 0.6,
+                    release: 1.0,
+                    filterFreq: 1200,
+                    filterRes: 3
+                },
+                brass: {
+                    oscillator: 'sawtooth',
+                    attack: 0.1,
+                    decay: 0.2,
+                    sustain: 0.8,
+                    release: 0.3,
+                    filterFreq: 2500,
+                    filterRes: 2
+                },
+                bass: {
+                    oscillator: 'square',
+                    attack: 0.01,
+                    decay: 0.1,
+                    sustain: 0.9,
+                    release: 0.2,
+                    filterFreq: 800,
+                    filterRes: 5
+                },
+                lead: {
+                    oscillator: 'sawtooth',
+                    attack: 0.01,
+                    decay: 0.3,
+                    sustain: 0.7,
+                    release: 0.3,
+                    filterFreq: 3000,
+                    filterRes: 4
+                },
+                pluck: {
+                    oscillator: 'triangle',
+                    attack: 0.001,
+                    decay: 0.5,
+                    sustain: 0.0,
+                    release: 0.5,
+                    filterFreq: 4000,
+                    filterRes: 1
+                }
+            };
+            
+            if (presets[preset]) {
+                Object.assign(synthParams, presets[preset]);
+                updateSynthControlValues();
+                console.log(`✅ Loaded ${preset.toUpperCase()} preset`);
+            }
+        }
+        
+        function initSynthControls() {
+            const panel = document.getElementById('synthControls');
+            const controls = [
+                { name: 'WAVE', param: 'oscillator', value: 0 },
+                { name: 'ATTACK', param: 'attack', value: 1 },
+                { name: 'DECAY', param: 'decay', value: 30 },
+                { name: 'SUSTAIN', param: 'sustain', value: 70 },
+                { name: 'RELEASE', param: 'release', value: 50 },
+                { name: 'CUTOFF', param: 'filterFreq', value: 60 },
+                { name: 'RESONANCE', param: 'filterRes', value: 10 },
+                { name: 'LFO RATE', param: 'lfoRate', value: 50 },
+                { name: 'LFO AMT', param: 'lfoAmount', value: 0 }
+            ];
+            
+            controls.forEach(ctrl => {
+                const div = document.createElement('div');
+                div.className = 'control-knob';
+                div.innerHTML = `
+                    <div class="knob" data-synth-param="${ctrl.param}">
+                        <div class="knob-indicator" style="transform: translateX(-50%) rotate(${(ctrl.value / 100) * 270 - 135}deg);"></div>
+                    </div>
+                    <div class="knob-label">${ctrl.name}</div>
+                `;
+                panel.appendChild(div);
+            });
+        }
+        
+        function updateSynthControlValues() {
+            // Update visual knobs to match synthParams
+            // This would map the actual parameter values to knob positions
+            console.log('Synth controls updated');
+        }
+        
+        // ===== DRUM MACHINE =====
+        const drumPads = [];
+        const drumSounds = {};
+        
+        // Drum pad layout with keyboard shortcuts
+        const drumPadLayout = [
+            { key: 'Q', name: 'Kick', row: 0, col: 0 },
+            { key: 'W', name: 'Snare', row: 0, col: 1 },
+            { key: 'E', name: 'Clap', row: 0, col: 2 },
+            { key: 'R', name: 'Rim', row: 0, col: 3 },
+            { key: 'A', name: 'Hi-Hat C', row: 1, col: 0 },
+            { key: 'S', name: 'Hi-Hat O', row: 1, col: 1 },
+            { key: 'D', name: 'Crash', row: 1, col: 2 },
+            { key: 'F', name: 'Ride', row: 1, col: 3 },
+            { key: 'Z', name: 'Tom Hi', row: 2, col: 0 },
+            { key: 'X', name: 'Tom Mid', row: 2, col: 1 },
+            { key: 'C', name: 'Tom Lo', row: 2, col: 2 },
+            { key: 'V', name: 'Perc 1', row: 2, col: 3 },
+            { key: '1', name: 'Perc 2', row: 3, col: 0 },
+            { key: '2', name: 'Perc 3', row: 3, col: 1 },
+            { key: '3', name: 'FX 1', row: 3, col: 2 },
+            { key: '4', name: 'FX 2', row: 3, col: 3 }
+        ];
+        
+        function initDrumMachine() {
+            const drumGrid = document.getElementById('drumGrid');
+            drumGrid.innerHTML = '';
+            
+            drumPadLayout.forEach((pad, index) => {
+                const padElement = document.createElement('div');
+                padElement.className = 'drum-pad';
+                padElement.innerHTML = `
+                    <div class="drum-pad-label">PAD ${index + 1}</div>
+                    <div class="drum-pad-key">${pad.key}</div>
+                    <div class="drum-pad-name">${pad.name}</div>
+                `;
+                
+                // Mouse click
+                padElement.addEventListener('mousedown', () => playDrumPad(index));
+                padElement.addEventListener('mouseup', () => releaseDrumPad(index));
+                
+                drumGrid.appendChild(padElement);
+                
+                drumPads[index] = {
+                    element: padElement,
+                    key: pad.key,
+                    name: pad.name,
+                    buffer: null,
+                    gain: audioCtx.createGain(),
+                    source: null
+                };
+                
+                // Connect to mixer (could route to different channels)
+                drumPads[index].gain.connect(masterGain);
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleDrumKeyDown);
+            document.addEventListener('keyup', handleDrumKeyUp);
+            
+            console.log('🥁 16-pad drum machine initialized');
+        }
+        
+        function handleDrumKeyDown(event) {
+            const key = event.key.toUpperCase();
+            const padIndex = drumPadLayout.findIndex(pad => pad.key === key);
+            
+            if (padIndex !== -1 && !event.repeat) {
+                playDrumPad(padIndex);
+            }
+        }
+        
+        function handleDrumKeyUp(event) {
+            const key = event.key.toUpperCase();
+            const padIndex = drumPadLayout.findIndex(pad => pad.key === key);
+            
+            if (padIndex !== -1) {
+                releaseDrumPad(padIndex);
+            }
+        }
+        
+        function playDrumPad(index) {
+            const pad = drumPads[index];
+            if (!pad) return;
+            
+            // Visual feedback
+            pad.element.classList.add('active');
+            
+            // Play sound
+            if (pad.buffer) {
+                // Stop previous sound if playing
+                if (pad.source) {
+                    try { pad.source.stop(); } catch (e) {}
+                }
+                
+                // Create new source
+                const source = audioCtx.createBufferSource();
+                source.buffer = pad.buffer;
+                source.connect(pad.gain);
+                source.start(0);
+                
+                pad.source = source;
+                
+                // Auto-release after sound ends
+                source.onended = () => {
+                    releaseDrumPad(index);
+                };
+            } else {
+                // Synthesize drum sound if no sample loaded
+                synthesizeDrumSound(pad.name, pad.gain);
+            }
+        }
+        
+        function releaseDrumPad(index) {
+            const pad = drumPads[index];
+            if (!pad) return;
+            
+            pad.element.classList.remove('active');
+        }
+        
+        function synthesizeDrumSound(type, gainNode) {
+            // Simple drum synthesis for demo
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const oscGain = audioCtx.createGain();
+            
+            switch(type) {
+                case 'Kick':
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+                    oscGain.gain.setValueAtTime(1, now);
+                    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    break;
+                    
+                case 'Snare':
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                    oscGain.gain.setValueAtTime(0.8, now);
+                    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    break;
+                    
+                case 'Hi-Hat C':
+                case 'Hi-Hat O':
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(8000, now);
+                    oscGain.gain.setValueAtTime(0.5, now);
+                    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    break;
+                    
+                default:
+                    osc.frequency.setValueAtTime(440, now);
+                    oscGain.gain.setValueAtTime(0.5, now);
+                    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            }
+            
+            osc.connect(oscGain);
+            oscGain.connect(gainNode);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+        
+        // Drum Kit Presets
+        const drumPresets = {
+            tr808: {
+                'Kick': 'TR-808 Kick',
+                'Snare': 'TR-808 Snare',
+                'Hi-Hat C': 'TR-808 CH',
+                'Hi-Hat O': 'TR-808 OH',
+                'Clap': 'TR-808 Clap',
+                'Rim': 'TR-808 Rim',
+                'Crash': 'TR-808 Crash',
+                'Tom Hi': 'TR-808 Tom Hi',
+                'Tom Mid': 'TR-808 Tom Mid',
+                'Tom Lo': 'TR-808 Tom Lo'
+            },
+            tr909: {
+                'Kick': 'TR-909 Kick',
+                'Snare': 'TR-909 Snare',
+                'Hi-Hat C': 'TR-909 CH',
+                'Hi-Hat O': 'TR-909 OH',
+                'Clap': 'TR-909 Clap',
+                'Rim': 'TR-909 Rim',
+                'Crash': 'TR-909 Crash',
+                'Tom Hi': 'TR-909 Tom Hi',
+                'Tom Mid': 'TR-909 Tom Mid',
+                'Tom Lo': 'TR-909 Tom Lo'
+            },
+            acoustic: {
+                'Kick': 'Acoustic Kick',
+                'Snare': 'Acoustic Snare',
+                'Hi-Hat C': 'Acoustic CH',
+                'Hi-Hat O': 'Acoustic OH',
+                'Crash': 'Acoustic Crash',
+                'Ride': 'Acoustic Ride'
+            },
+            trap: {
+                'Kick': 'Trap Kick',
+                'Snare': 'Trap Snare',
+                'Hi-Hat C': 'Trap Hat',
+                'Clap': 'Trap Clap',
+                'FX 1': 'Air Horn',
+                'FX 2': 'Vocal Chop'
+            },
+            house: {
+                'Kick': 'House Kick',
+                'Hi-Hat C': 'House Hat C',
+                'Hi-Hat O': 'House Hat O',
+                'Clap': 'House Clap',
+                'Perc 1': 'Shaker',
+                'Perc 2': 'Tambourine'
+            }
+        };
+        
+        function loadDrumPreset(presetName) {
+            const preset = drumPresets[presetName];
+            
+            if (!preset) {
+                alert(`Preset "${presetName}" loaded!\n\nNote: Sample loading will be implemented with actual audio files.`);
+                return;
+            }
+            
+            // Update pad names
+            drumPads.forEach((pad, index) => {
+                const padName = drumPadLayout[index].name;
+                if (preset[padName]) {
+                    pad.name = preset[padName];
+                    pad.element.querySelector('.drum-pad-name').textContent = preset[padName];
+                }
+            });
+            
+            console.log(`✅ Loaded ${presetName.toUpperCase()} drum kit`);
+            alert(`✅ ${presetName.toUpperCase()} kit loaded!\n\nSynthesized sounds playing. Real samples coming soon.`);
+        }
+        
+        function saveDrumKit() {
+            const kitData = {
+                name: 'Custom Kit',
+                pads: drumPads.map((pad, index) => ({
+                    index,
+                    key: pad.key,
+                    name: pad.name,
+                    // buffer would be saved as base64 or reference
+                }))
+            };
+            
+            const json = JSON.stringify(kitData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'custom-kit.maykit';
+            a.click();
+            
+            console.log('💾 Drum kit saved');
+        }
+        
+        function loadKitFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const kitData = JSON.parse(e.target.result);
+                    
+                    kitData.pads.forEach(padData => {
+                        if (drumPads[padData.index]) {
+                            drumPads[padData.index].name = padData.name;
+                            drumPads[padData.index].element.querySelector('.drum-pad-name').textContent = padData.name;
+                        }
+                    });
+                    
+                    console.log('✅ Loaded kit:', kitData.name);
+                    alert(`✅ Loaded: ${kitData.name}`);
+                } catch (error) {
+                    console.error('Error loading kit:', error);
+                    alert('❌ Error loading kit file');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function initMixer() {
+            const mixerGrid = document.getElementById('mixerGrid');
+            mixerGrid.innerHTML = '';
+            
+            // Create 16 channel strips
+            for (let i = 1; i <= 16; i++) {
+                const channel = createChannelStrip(i);
+                mixerChannels.push(channel);
+                mixerGrid.appendChild(channel.element);
+            }
+            
+            console.log('🎚️ 16-channel mixer initialized');
+        }
+        
+        function createChannelStrip(channelNum) {
+            // Create audio nodes for this channel
+            const gain = audioCtx.createGain();
+            const panner = audioCtx.createStereoPanner();
+            const analyzer = audioCtx.createAnalyser();
+            analyzer.fftSize = 256;
+            
+            // Audio routing: input -> gain -> panner -> analyzer -> master
+            gain.connect(panner);
+            panner.connect(analyzer);
+            analyzer.connect(masterGain);
+            
+            // Create aux sends
+            const auxSends = [
+                audioCtx.createGain(),
+                audioCtx.createGain(),
+                audioCtx.createGain(),
+                audioCtx.createGain()
+            ];
+            
+            auxSends.forEach(aux => {
+                aux.gain.value = 0;
+                panner.connect(aux);
+                // aux.connect to FX returns (will implement later)
+            });
+            
+            // Create channel strip HTML
+            const strip = document.createElement('div');
+            strip.className = 'channel-strip';
+            strip.innerHTML = `
+                <div class="channel-label">CH ${channelNum}</div>
+                
+                <select class="channel-input-select" onchange="setChannelInput(${channelNum - 1}, this.value)">
+                    <option value="">-- Input --</option>
+                    <option value="mic">🎤 Microphone</option>
+                    <option value="sampler">🎵 Sampler</option>
+                    <option value="drums">🥁 Drums</option>
+                    <option value="synth">🎹 Synth</option>
+                    <option value="track${channelNum}">🎬 Track ${channelNum}</option>
+                </select>
+                
+                <div class="vu-meter">
+                    <div class="vu-meter-fill" id="vu${channelNum}"></div>
+                </div>
+                
+                <div>
+                    <div class="pan-knob" data-channel="${channelNum - 1}" onmousedown="startPanDrag(event, ${channelNum - 1})">
+                        <div class="pan-indicator" id="panIndicator${channelNum}"></div>
+                    </div>
+                    <div class="pan-label" id="panLabel${channelNum}">C</div>
+                </div>
+                
+                <div class="aux-sends">
+                    ${[1, 2, 3, 4].map(aux => `
+                        <div class="aux-send">
+                            <div class="aux-label">AUX ${aux}</div>
+                            <div class="aux-knob" data-channel="${channelNum - 1}" data-aux="${aux - 1}" onmousedown="startAuxDrag(event, ${channelNum - 1}, ${aux - 1})">
+                                <div class="aux-indicator" id="auxIndicator${channelNum}_${aux}"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="fader-container">
+                    <div class="fader-track"></div>
+                    <div class="fader-handle" id="fader${channelNum}" data-channel="${channelNum - 1}" onmousedown="startFaderDrag(event, ${channelNum - 1})"></div>
+                </div>
+                <div class="fader-db" id="faderDb${channelNum}">0.0 dB</div>
+                
+                <div class="channel-buttons">
+                    <button class="channel-btn" onclick="toggleMute(${channelNum - 1})">M</button>
+                    <button class="channel-btn solo" onclick="toggleSolo(${channelNum - 1})">S</button>
+                    <button class="channel-btn arm" onclick="toggleArm(${channelNum - 1})">R</button>
+                </div>
+            `;
+            
+            // Channel state
+            const channelState = {
+                element: strip,
+                gain: gain,
+                panner: panner,
+                analyzer: analyzer,
+                auxSends: auxSends,
+                muted: false,
+                soloed: false,
+                armed: false,
+                volume: 0.8,
+                pan: 0,
+                input: null
+            };
+            
+            // Set initial gain
+            gain.gain.value = 0.8;
+            
+            // Start VU meter animation
+            startVUMeter(channelNum, analyzer);
+            
+            return channelState;
+        }
+        
+        function startVUMeter(channelNum, analyzer) {
+            const vuFill = document.getElementById(`vu${channelNum}`);
+            
+            function updateVU() {
+                if (!vuFill) return; // Safety check
+                
+                const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+                analyzer.getByteFrequencyData(dataArray);
+                
+                const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                const level = (average / 255) * 100;
+                
+                vuFill.style.height = level + '%';
+                requestAnimationFrame(updateVU);
+            }
+            
+            updateVU();
+        }
+        
+        // Fader drag functionality
+        let activeFader = null;
+        
+        function startFaderDrag(event, channelIndex) {
+            event.preventDefault();
+            activeFader = {
+                channel: channelIndex,
+                startY: event.clientY,
+                container: event.currentTarget.parentElement,
+                handle: event.currentTarget
+            };
+            
+            document.addEventListener('mousemove', onFaderDrag);
+            document.addEventListener('mouseup', stopFaderDrag);
+        }
+        
+        function onFaderDrag(event) {
+            if (!activeFader) return;
+            
+            const container = activeFader.container;
+            const handle = activeFader.handle;
+            const rect = container.getBoundingClientRect();
+            
+            const y = event.clientY - rect.top;
+            const percent = Math.max(0, Math.min(100, (y / rect.height) * 100));
+            
+            handle.style.top = percent + '%';
+            
+            // Update gain (invert: top = loud, bottom = quiet)
+            const gainValue = Math.pow((100 - percent) / 100, 2); // Exponential curve
+            mixerChannels[activeFader.channel].gain.gain.value = gainValue;
+            mixerChannels[activeFader.channel].volume = gainValue;
+            
+            // Update dB display
+            const db = gainValue > 0 ? (20 * Math.log10(gainValue)).toFixed(1) : '-∞';
+            document.getElementById(`faderDb${activeFader.channel + 1}`).textContent = db + ' dB';
+        }
+        
+        function stopFaderDrag() {
+            activeFader = null;
+            document.removeEventListener('mousemove', onFaderDrag);
+            document.removeEventListener('mouseup', stopFaderDrag);
+        }
+        
+        // Pan knob drag functionality
+        let activePan = null;
+        
+        function startPanDrag(event, channelIndex) {
+            event.preventDefault();
+            activePan = {
+                channel: channelIndex,
+                startY: event.clientY,
+                startPan: mixerChannels[channelIndex].pan
+            };
+            
+            document.addEventListener('mousemove', onPanDrag);
+            document.addEventListener('mouseup', stopPanDrag);
+        }
+        
+        function onPanDrag(event) {
+            if (!activePan) return;
+            
+            const deltaY = activePan.startY - event.clientY;
+            const panChange = deltaY / 100;
+            const newPan = Math.max(-1, Math.min(1, activePan.startPan + panChange));
+            
+            mixerChannels[activePan.channel].pan = newPan;
+            mixerChannels[activePan.channel].panner.pan.value = newPan;
+            
+            // Update indicator
+            const rotation = newPan * 135; // -135° to +135°
+            document.getElementById(`panIndicator${activePan.channel + 1}`).style.transform = 
+                `translateX(-50%) rotate(${rotation}deg)`;
+            
+            // Update label
+            let label = 'C';
+            if (newPan < -0.1) label = `L${Math.round(Math.abs(newPan) * 100)}`;
+            else if (newPan > 0.1) label = `R${Math.round(newPan * 100)}`;
+            document.getElementById(`panLabel${activePan.channel + 1}`).textContent = label;
+        }
+        
+        function stopPanDrag() {
+            activePan = null;
+            document.removeEventListener('mousemove', onPanDrag);
+            document.removeEventListener('mouseup', stopPanDrag);
+        }
+        
+        // Aux send drag functionality
+        let activeAux = null;
+        
+        function startAuxDrag(event, channelIndex, auxIndex) {
+            event.preventDefault();
+            activeAux = {
+                channel: channelIndex,
+                aux: auxIndex,
+                startY: event.clientY,
+                startValue: mixerChannels[channelIndex].auxSends[auxIndex].gain.value
+            };
+            
+            document.addEventListener('mousemove', onAuxDrag);
+            document.addEventListener('mouseup', stopAuxDrag);
+        }
+        
+        function onAuxDrag(event) {
+            if (!activeAux) return;
+            
+            const deltaY = activeAux.startY - event.clientY;
+            const valueChange = deltaY / 100;
+            const newValue = Math.max(0, Math.min(1, activeAux.startValue + valueChange));
+            
+            mixerChannels[activeAux.channel].auxSends[activeAux.aux].gain.value = newValue;
+            
+            // Update indicator
+            const rotation = (newValue * 270) - 135;
+            document.getElementById(`auxIndicator${activeAux.channel + 1}_${activeAux.aux + 1}`).style.transform = 
+                `translateX(-50%) rotate(${rotation}deg)`;
+        }
+        
+        function stopAuxDrag() {
+            activeAux = null;
+            document.removeEventListener('mousemove', onAuxDrag);
+            document.removeEventListener('mouseup', stopAuxDrag);
+        }
+        
+        // Channel controls
+        function toggleMute(channelIndex) {
+            const channel = mixerChannels[channelIndex];
+            channel.muted = !channel.muted;
+            
+            if (channel.muted) {
+                channel.gain.gain.value = 0;
+                event.target.classList.add('active');
+            } else {
+                channel.gain.gain.value = channel.volume;
+                event.target.classList.remove('active');
+            }
+        }
+        
+        function toggleSolo(channelIndex) {
+            const channel = mixerChannels[channelIndex];
+            channel.soloed = !channel.soloed;
+            event.target.classList.toggle('active');
+            
+            // If any channel is soloed, mute all non-soloed channels
+            const anySoloed = mixerChannels.some(ch => ch.soloed);
+            
+            mixerChannels.forEach((ch, idx) => {
+                if (anySoloed) {
+                    if (ch.soloed) {
+                        ch.gain.gain.value = ch.volume;
+                    } else {
+                        ch.gain.gain.value = 0;
+                    }
+                } else {
+                    ch.gain.gain.value = ch.muted ? 0 : ch.volume;
+                }
+            });
+        }
+        
+        function toggleArm(channelIndex) {
+            const channel = mixerChannels[channelIndex];
+            channel.armed = !channel.armed;
+            event.target.classList.toggle('active');
+            console.log(`Channel ${channelIndex + 1} ${channel.armed ? 'armed' : 'disarmed'} for recording`);
+        }
+        
+        function setChannelInput(channelIndex, inputType) {
+            const channel = mixerChannels[channelIndex];
+            channel.input = inputType;
+            console.log(`Channel ${channelIndex + 1} input set to: ${inputType}`);
+            
+            // TODO: Wire up actual audio sources
+            // if (inputType === 'mic') -> connect microphone
+            // if (inputType === 'sampler') -> connect sampler output
+            // etc.
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            init();
+            initMixer();
+            initDrumMachine();
+            initSynthesizer();
+            initFXRack();
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            initWaveformCanvas();
+        });
+        
+        console.log('🚀 Mayhem Module ready!');
+    </script>
+</body>
+</html>

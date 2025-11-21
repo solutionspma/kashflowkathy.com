@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayhem Module - Interactive Audio Workstation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #581c87 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 30px;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .logo:hover {
+            transform: scale(1.1) rotate(180deg);
+        }
+        
+        .logo-text h1 {
+            font-size: 1.5em;
+            color: white;
+        }
+        
+        .logo-text p {
+            font-size: 0.85em;
+            color: #a855f7;
+        }
+        
+        .transport-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .play-btn {
+            padding: 12px 30px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+        
+        .play-btn.playing {
+            background: #ef4444;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .play-btn.stopped {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .bpm-display {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-tab {
+            padding: 12px 25px;
+            border-radius: 10px 10px 0 0;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.2);
+            color: #a855f7;
+        }
+        
+        .nav-tab.active {
+            background: #a855f7;
+            color: white;
+        }
+        
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Drum Machine View */
+        .drum-machine {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        
+        .drum-machine h2 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 25px;
+        }
+        
+        .pad-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .drum-pad {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+            border: 2px solid rgba(168, 85, 247, 0.4);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .drum-pad:hover {
+            border-color: #a855f7;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
+            transform: scale(1.02);
+        }
+        
+        .drum-pad:active,
+        .drum-pad.hit {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+        }
+        
+        .pad-icon {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+        }
+        
+        .pad-label {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        
+        .pad-key {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #a855f7;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .controls-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-label {
+            color: #a855f7;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .knob-container {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+        
+        .knob {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #2d2d44, #1a1a2e);
+            border: 3px solid #a855f7;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .knob-indicator {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 20px;
+            background: #ec4899;
+            border-radius: 2px;
+        }
+        
+        .knob-value {
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+        
+        .waveform-display {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        
+        .waveform {
+            width: 100%;
+            height: 100px;
+            background: rgba(168, 85, 247, 0.1);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .waveform-bars {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: 100%;
+            padding: 0 10px;
+        }
+        
+        .waveform-bar {
+            width: 3px;
+            background: linear-gradient(to top, #a855f7, #ec4899);
+            border-radius: 2px;
+            opacity: 0.6;
+            transition: height 0.1s;
+        }
+        
+        .sound-loaded {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+        }
+        
+        .sound-loaded .pad-label::after {
+            content: " ✓";
+            color: #22c55e;
+        }
+        
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(168, 85, 247, 0.3);
+            border-top-color: #a855f7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .upload-zone {
+            background: rgba(168, 85, 247, 0.1);
+            border: 2px dashed #a855f7;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .upload-zone:hover {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #ec4899;
+        }
+        
+        .upload-zone.dragover {
+            background: rgba(168, 85, 247, 0.3);
+            border-color: #22c55e;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .sound-library {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .library-header {
+            color: white;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sound-item {
+            background: rgba(168, 85, 247, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .sound-item:hover {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+        }
+        
+        .sound-name {
+            color: white;
+            font-size: 0.9em;
+        }
+        
+        .sound-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .sound-btn {
+            padding: 6px 12px;
+            background: #a855f7;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .sound-btn:hover {
+            background: #9333ea;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo-section">
+                    <div class="logo">🎛️</div>
+                    <div class="logo-text">
+                        <h1>Mayhem Module</h1>
+                        <p>Interactive Audio Workstation</p>
+                    </div>
+                </div>
+                
+                <div class="transport-controls">
+                    <button class="play-btn stopped" id="playBtn" onclick="togglePlay()">
+                        <span id="playIcon">▶️</span> <span id="playText">Play</span>
+                    </button>
+                    <div class="bpm-display">
+                        <span style="color: #a855f7;">BPM:</span>
+                        <strong style="color: white; font-family: monospace;" id="bpmValue">120</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchView('drums')">🥁 Drum Machine</button>
+                <button class="nav-tab" onclick="switchView('synth')">🎹 Synthesizer</button>
+                <button class="nav-tab" onclick="switchView('sampler')">💿 Sampler</button>
+                <button class="nav-tab" onclick="switchView('library')">📚 Sound Library</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <!-- Drum Machine View -->
+        <div id="drums" class="view active">
+            <div class="drum-machine">
+                <h2>🥁 Drumsynth Multi - 16 Pad Controller</h2>
+                
+                <div class="pad-grid" id="padGrid"></div>
+                
+                <div class="waveform-display">
+                    <div style="color: #a855f7; margin-bottom: 10px; font-size: 0.9em;">🎵 Audio Visualization</div>
+                    <div class="waveform">
+                        <div class="waveform-bars" id="waveformBars"></div>
+                    </div>
+                </div>
+                
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <label class="control-label">MASTER VOLUME</label>
+                        <div class="knob-container">
+                            <div class="knob" data-param="volume" data-value="75">
+                                <div class="knob-indicator"></div>
+                            </div>
+                        </div>
+                        <div class="knob-value" id="volumeValue">75%</div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">REVERB</label>
+                        <div class="knob-container">
+                            <div class="knob" data-param="reverb" data-value="30">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(108deg); transform-origin: center bottom;"></div>
+                            </div>
+                        </div>
+                        <div class="knob-value" id="reverbValue">30%</div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">FILTER CUTOFF</label>
+                        <div class="knob-container">
+                            <div class="knob" data-param="filter" data-value="65">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(234deg); transform-origin: center bottom;"></div>
+                            </div>
+                        </div>
+                        <div class="knob-value" id="filterValue">65%</div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">ATTACK</label>
+                        <div class="knob-container">
+                            <div class="knob" data-param="attack" data-value="10">
+                                <div class="knob-indicator" style="transform: translateX(-50%) rotate(36deg); transform-origin: center bottom;"></div>
+                            </div>
+                        </div>
+                        <div class="knob-value" id="attackValue">10%</div>
+                    </div>
+                </div>
+                
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 3em; margin-bottom: 10px;">📁</div>
+                    <div style="color: white; font-size: 1.2em; margin-bottom: 5px;">Upload Your Sounds</div>
+                    <div style="color: #a855f7; font-size: 0.9em;">Click or drag & drop audio files (WAV, MP3, OGG)</div>
+                    <div style="color: #64748b; font-size: 0.8em; margin-top: 10px;">Supports: Supabase bucket, local files, and web URLs</div>
+                </div>
+                <input type="file" id="fileInput" class="file-input" accept="audio/*" multiple onchange="handleFileUpload(event)">
+            </div>
+        </div>
+
+        <!-- Sound Library View -->
+        <div id="library" class="view">
+            <div class="drum-machine">
+                <h2>📚 Sound Library Manager</h2>
+                
+                <div class="sound-library">
+                    <div class="library-header">
+                        <span>Built-in Sounds</span>
+                        <button class="sound-btn" onclick="loadDefaultSounds()">🔄 Reload Defaults</button>
+                    </div>
+                    <div id="soundList"></div>
+                </div>
+                
+                <div class="sound-library" style="margin-top: 20px;">
+                    <div class="library-header">
+                        <span>Your Uploaded Sounds</span>
+                        <button class="sound-btn" onclick="document.getElementById('fileInput').click()">➕ Add Sounds</button>
+                    </div>
+                    <div id="uploadedSounds"></div>
+                </div>
+                
+                <div style="background: rgba(168, 85, 247, 0.1); border-radius: 12px; padding: 20px; margin-top: 20px; border: 1px solid rgba(168, 85, 247, 0.3);">
+                    <h3 style="color: #a855f7; margin-bottom: 10px;">💡 Tips</h3>
+                    <ul style="color: #cbd5e1; line-height: 1.8;">
+                        <li>Click any pad to trigger the sound</li>
+                        <li>Use keyboard keys (Q,W,E,R / A,S,D,F / Z,X,C,V / 1,2,3,4) to play pads</li>
+                        <li>Upload your own samples by clicking the upload zone</li>
+                        <li>Drag sounds from the library onto pads to assign them</li>
+                        <li>Use the knobs to adjust volume, effects, and envelopes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Synth View -->
+        <div id="synth" class="view">
+            <div class="drum-machine">
+                <h2>🎹 Mayhem Synth - Analog Modeling Synthesizer & Vocoder</h2>
+                
+                <!-- Synth Engine Selector -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="pattern-btn active" onclick="selectSynthMode('poly')">🎹 Polyphonic</button>
+                    <button class="pattern-btn" onclick="selectSynthMode('mono')">🔊 Monophonic</button>
+                    <button class="pattern-btn" onclick="selectSynthMode('vocoder')">🎤 Vocoder</button>
+                </div>
+                
+                <!-- Vocoder Status -->
+                <div id="vocoderStatus" style="display: none; background: rgba(236, 72, 153, 0.2); border: 2px solid #ec4899; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center;">
+                    <div style="color: white; font-size: 1.2em; margin-bottom: 5px;">🎤 VOCODER MODE ACTIVE</div>
+                    <div style="color: #ec4899; font-size: 0.9em;">Speak or sing into your microphone while playing keys!</div>
+                    <div id="micStatus" style="color: #22c55e; font-size: 0.85em; margin-top: 5px;">🔴 Mic: Initializing...</div>
+                </div>
+                
+                <!-- Keyboard -->
+                <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <div style="color: #a855f7; margin-bottom: 15px; font-size: 1.1em; font-weight: 600;">🎹 Keyboard (2 Octaves)</div>
+                    <div id="synthKeyboard" style="display: flex; gap: 2px; height: 180px; position: relative;"></div>
+                    <div style="color: #64748b; font-size: 0.85em; margin-top: 10px; text-align: center;">
+                        Use computer keyboard: A-K for white keys, W,E,T,Y,U for black keys | Z,X for octave shift
+                    </div>
+                </div>
+                
+                <!-- Synth Controls -->
+                <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 25px; margin-bottom: 20px;">
+                    <h3 style="color: white; margin-bottom: 20px;">🎛️ Synthesis Controls</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 25px;">
+                        <!-- Oscillator -->
+                        <div class="control-group">
+                            <label class="control-label">OSCILLATOR WAVE</label>
+                            <select id="waveform" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.6); color: white; border: 1px solid #a855f7; border-radius: 8px; font-size: 0.9em;" onchange="updateWaveform()">
+                                <option value="sawtooth">🌊 Sawtooth (Juno-style)</option>
+                                <option value="square">⬜ Square (Retro)</option>
+                                <option value="sine">〰️ Sine (Pure)</option>
+                                <option value="triangle">📐 Triangle (Soft)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Type -->
+                        <div class="control-group">
+                            <label class="control-label">FILTER TYPE</label>
+                            <select id="filterType" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.6); color: white; border: 1px solid #a855f7; border-radius: 8px; font-size: 0.9em;" onchange="updateFilter()">
+                                <option value="lowpass">🔽 Low Pass (Classic)</option>
+                                <option value="highpass">🔼 High Pass</option>
+                                <option value="bandpass">↔️ Band Pass</option>
+                                <option value="notch">⊗ Notch</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Cutoff -->
+                        <div class="control-group">
+                            <label class="control-label">FILTER CUTOFF</label>
+                            <input type="range" id="filterCutoff" min="100" max="10000" value="2000" 
+                                   style="width: 100%;" oninput="updateFilterCutoff(this.value)">
+                            <div class="knob-value" id="cutoffDisplay">2000 Hz</div>
+                        </div>
+                        
+                        <!-- Resonance -->
+                        <div class="control-group">
+                            <label class="control-label">RESONANCE</label>
+                            <input type="range" id="resonance" min="0" max="30" value="5" 
+                                   style="width: 100%;" oninput="updateResonance(this.value)">
+                            <div class="knob-value" id="resonanceDisplay">5</div>
+                        </div>
+                        
+                        <!-- Attack -->
+                        <div class="control-group">
+                            <label class="control-label">ATTACK</label>
+                            <input type="range" id="synthAttack" min="0" max="2" step="0.01" value="0.01" 
+                                   style="width: 100%;" oninput="updateEnvelope()">
+                            <div class="knob-value" id="attackDisplay">0.01s</div>
+                        </div>
+                        
+                        <!-- Decay -->
+                        <div class="control-group">
+                            <label class="control-label">DECAY</label>
+                            <input type="range" id="synthDecay" min="0" max="2" step="0.01" value="0.3" 
+                                   style="width: 100%;" oninput="updateEnvelope()">
+                            <div class="knob-value" id="decayDisplay">0.3s</div>
+                        </div>
+                        
+                        <!-- Sustain -->
+                        <div class="control-group">
+                            <label class="control-label">SUSTAIN</label>
+                            <input type="range" id="synthSustain" min="0" max="1" step="0.01" value="0.7" 
+                                   style="width: 100%;" oninput="updateEnvelope()">
+                            <div class="knob-value" id="sustainDisplay">70%</div>
+                        </div>
+                        
+                        <!-- Release -->
+                        <div class="control-group">
+                            <label class="control-label">RELEASE</label>
+                            <input type="range" id="synthRelease" min="0" max="3" step="0.01" value="0.5" 
+                                   style="width: 100%;" oninput="updateEnvelope()">
+                            <div class="knob-value" id="releaseDisplay">0.5s</div>
+                        </div>
+                        
+                        <!-- Detune -->
+                        <div class="control-group">
+                            <label class="control-label">DETUNE (Unison)</label>
+                            <input type="range" id="detune" min="0" max="50" value="10" 
+                                   style="width: 100%;" oninput="updateDetune(this.value)">
+                            <div class="knob-value" id="detuneDisplay">10 cents</div>
+                        </div>
+                        
+                        <!-- LFO Rate -->
+                        <div class="control-group">
+                            <label class="control-label">LFO RATE</label>
+                            <input type="range" id="lfoRate" min="0" max="20" step="0.1" value="5" 
+                                   style="width: 100%;" oninput="updateLFO()">
+                            <div class="knob-value" id="lfoDisplay">5 Hz</div>
+                        </div>
+                        
+                        <!-- LFO Depth -->
+                        <div class="control-group">
+                            <label class="control-label">LFO DEPTH</label>
+                            <input type="range" id="lfoDepth" min="0" max="100" value="20" 
+                                   style="width: 100%;" oninput="updateLFO()">
+                            <div class="knob-value" id="lfoDepthDisplay">20%</div>
+                        </div>
+                        
+                        <!-- Vocoder Bands -->
+                        <div class="control-group" id="vocoderBandsControl" style="display: none;">
+                            <label class="control-label">VOCODER BANDS</label>
+                            <input type="range" id="vocoderBands" min="8" max="32" value="16" 
+                                   style="width: 100%;" oninput="updateVocoder()">
+                            <div class="knob-value" id="bandsDisplay">16 bands</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Effects -->
+                <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 25px;">
+                    <h3 style="color: white; margin-bottom: 20px;">✨ Effects</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <!-- Chorus -->
+                        <div class="control-group">
+                            <label class="control-label">CHORUS</label>
+                            <input type="range" id="chorus" min="0" max="100" value="0" 
+                                   style="width: 100%;" oninput="updateChorus(this.value)">
+                            <div class="knob-value" id="chorusDisplay">Off</div>
+                        </div>
+                        
+                        <!-- Delay -->
+                        <div class="control-group">
+                            <label class="control-label">DELAY</label>
+                            <input type="range" id="delay" min="0" max="100" value="0" 
+                                   style="width: 100%;" oninput="updateDelay(this.value)">
+                            <div class="knob-value" id="delayDisplay">Off</div>
+                        </div>
+                        
+                        <!-- Reverb -->
+                        <div class="control-group">
+                            <label class="control-label">REVERB</label>
+                            <input type="range" id="synthReverb" min="0" max="100" value="20" 
+                                   style="width: 100%;" oninput="updateReverb(this.value)">
+                            <div class="knob-value" id="synthReverbDisplay">20%</div>
+                        </div>
+                        
+                        <!-- Distortion -->
+                        <div class="control-group">
+                            <label class="control-label">DISTORTION</label>
+                            <input type="range" id="distortion" min="0" max="100" value="0" 
+                                   style="width: 100%;" oninput="updateDistortion(this.value)">
+                            <div class="knob-value" id="distortionDisplay">Off</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Presets -->
+                <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2)); border-radius: 12px; padding: 20px; margin-top: 20px; border: 1px solid rgba(168, 85, 247, 0.3);">
+                    <h3 style="color: white; margin-bottom: 15px;">💾 Factory Presets</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                        <button class="sound-btn" onclick="loadPreset('juno')">🎹 Juno Pad</button>
+                        <button class="sound-btn" onclick="loadPreset('brass')">🎺 Yamaha Brass</button>
+                        <button class="sound-btn" onclick="loadPreset('bass')">🔊 Korg Bass</button>
+                        <button class="sound-btn" onclick="loadPreset('lead')">⚡ Lead Synth</button>
+                        <button class="sound-btn" onclick="loadPreset('pluck')">🎸 Pluck</button>
+                        <button class="sound-btn" onclick="loadPreset('strings')">🎻 Strings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sampler View -->
+        <div id="sampler" class="view">
+            <div class="drum-machine">
+                <h2>💿 Sampler (Coming Soon)</h2>
+                <div style="text-align: center; padding: 60px; color: #a855f7;">
+                    <div style="font-size: 5em; margin-bottom: 20px;">🎵</div>
+                    <div style="font-size: 1.5em; color: white; margin-bottom: 10px;">Advanced Sampler</div>
+                    <div>Multi-sample playback with time-stretching and pitch-shifting</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Context
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+        let masterGain = audioContext.createGain();
+        masterGain.connect(audioContext.destination);
+        masterGain.gain.value = 0.75;
+
+        // Drum Pads Configuration
+        const pads = [
+            { id: 0, name: 'Kick', icon: '👢', key: 'Q', sound: null },
+            { id: 1, name: 'Snare', icon: '🥁', key: 'W', sound: null },
+            { id: 2, name: 'Clap', icon: '👏', key: 'E', sound: null },
+            { id: 3, name: 'Hi-Hat C', icon: '🎩', key: 'R', sound: null },
+            { id: 4, name: 'Hi-Hat O', icon: '🔓', key: 'A', sound: null },
+            { id: 5, name: 'Tom Hi', icon: '🎵', key: 'S', sound: null },
+            { id: 6, name: 'Tom Mid', icon: '🎶', key: 'D', sound: null },
+            { id: 7, name: 'Tom Lo', icon: '🎼', key: 'F', sound: null },
+            { id: 8, name: 'Crash', icon: '💥', key: 'Z', sound: null },
+            { id: 9, name: 'Ride', icon: '🚴', key: 'X', sound: null },
+            { id: 10, name: 'Perc 1', icon: '🔔', key: 'C', sound: null },
+            { id: 11, name: 'Perc 2', icon: '🎺', key: 'V', sound: null },
+            { id: 12, name: 'FX 1', icon: '✨', key: '1', sound: null },
+            { id: 13, name: 'FX 2', icon: '🌟', key: '2', sound: null },
+            { id: 14, name: 'FX 3', icon: '💫', key: '3', sound: null },
+            { id: 15, name: 'FX 4', icon: '⭐', key: '4', sound: null }
+        ];
+
+        let isPlaying = false;
+        let uploadedSounds = [];
+        
+        // Synth Engine
+        let synthMode = 'poly';
+        let currentOctave = 4;
+        let activeNotes = new Map();
+        let synthParams = {
+            waveform: 'sawtooth',
+            filterType: 'lowpass',
+            filterCutoff: 2000,
+            resonance: 5,
+            attack: 0.01,
+            decay: 0.3,
+            sustain: 0.7,
+            release: 0.5,
+            detune: 10,
+            lfoRate: 5,
+            lfoDepth: 20
+        };
+        
+        // Vocoder
+        let vocoderActive = false;
+        let micStream = null;
+        let micSource = null;
+        let analyser = null;
+        
+        // Notes mapping
+        const noteFrequencies = {
+            'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+            'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+            'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+        };
+
+        // Initialize
+        function init() {
+            renderPads();
+            renderWaveform();
+            setupKeyboardControls();
+            setupDragDrop();
+            generateDefaultSounds();
+            renderSoundLibrary();
+            renderSynthKeyboard();
+            setupSynthKeyboardControls();
+        }
+
+        // Render Pads
+        function renderPads() {
+            const grid = document.getElementById('padGrid');
+            grid.innerHTML = pads.map(pad => `
+                <div class="drum-pad ${pad.sound ? 'sound-loaded' : ''}" 
+                     id="pad-${pad.id}" 
+                     onclick="playPad(${pad.id})"
+                     draggable="false">
+                    <div class="pad-key">${pad.key}</div>
+                    <div class="pad-icon">${pad.icon}</div>
+                    <div class="pad-label">${pad.name}</div>
+                </div>
+            `).join('');
+        }
+
+        // Generate synthesized drum sounds using Web Audio API
+        function generateDefaultSounds() {
+            // Kick drum
+            pads[0].sound = createKickSound();
+            // Snare
+            pads[1].sound = createSnareSound();
+            // Clap
+            pads[2].sound = createClapSound();
+            // Hi-hat closed
+            pads[3].sound = createHiHatSound(0.05);
+            // Hi-hat open
+            pads[4].sound = createHiHatSound(0.3);
+            // Crash
+            pads[8].sound = createCrashSound();
+            
+            renderPads();
+        }
+
+        // Synthesized Kick
+        function createKickSound() {
+            return function() {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.frequency.setValueAtTime(150, audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                gain.gain.setValueAtTime(1, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                osc.connect(gain);
+                gain.connect(masterGain);
+                
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + 0.5);
+            };
+        }
+
+        // Synthesized Snare
+        function createSnareSound() {
+            return function() {
+                const noise = audioContext.createBufferSource();
+                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
+                const data = noiseBuffer.getChannelData(0);
+                
+                for (let i = 0; i < data.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                
+                noise.buffer = noiseBuffer;
+                
+                const noiseGain = audioContext.createGain();
+                noiseGain.gain.setValueAtTime(1, audioContext.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                noise.connect(noiseGain);
+                noiseGain.connect(masterGain);
+                
+                noise.start(audioContext.currentTime);
+            };
+        }
+
+        // Synthesized Clap
+        function createClapSound() {
+            return function() {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const noise = audioContext.createBufferSource();
+                        const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.05, audioContext.sampleRate);
+                        const data = noiseBuffer.getChannelData(0);
+                        
+                        for (let j = 0; j < data.length; j++) {
+                            data[j] = Math.random() * 2 - 1;
+                        }
+                        
+                        noise.buffer = noiseBuffer;
+                        
+                        const noiseGain = audioContext.createGain();
+                        noiseGain.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        noiseGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                        
+                        noise.connect(noiseGain);
+                        noiseGain.connect(masterGain);
+                        
+                        noise.start(audioContext.currentTime);
+                    }, i * 30);
+                }
+            };
+        }
+
+        // Synthesized Hi-Hat
+        function createHiHatSound(duration) {
+            return function() {
+                const noise = audioContext.createBufferSource();
+                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+                const data = noiseBuffer.getChannelData(0);
+                
+                for (let i = 0; i < data.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                
+                noise.buffer = noiseBuffer;
+                
+                const bandpass = audioContext.createBiquadFilter();
+                bandpass.type = 'bandpass';
+                bandpass.frequency.value = 10000;
+                
+                const noiseGain = audioContext.createGain();
+                noiseGain.gain.setValueAtTime(0.3, audioContext.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                noise.connect(bandpass);
+                bandpass.connect(noiseGain);
+                noiseGain.connect(masterGain);
+                
+                noise.start(audioContext.currentTime);
+            };
+        }
+
+        // Synthesized Crash
+        function createCrashSound() {
+            return function() {
+                const noise = audioContext.createBufferSource();
+                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 2, audioContext.sampleRate);
+                const data = noiseBuffer.getChannelData(0);
+                
+                for (let i = 0; i < data.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                
+                noise.buffer = noiseBuffer;
+                
+                const bandpass = audioContext.createBiquadFilter();
+                bandpass.type = 'bandpass';
+                bandpass.frequency.value = 8000;
+                bandpass.Q.value = 0.5;
+                
+                const noiseGain = audioContext.createGain();
+                noiseGain.gain.setValueAtTime(0.5, audioContext.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 2);
+                
+                noise.connect(bandpass);
+                bandpass.connect(noiseGain);
+                noiseGain.connect(masterGain);
+                
+                noise.start(audioContext.currentTime);
+            };
+        }
+
+        // Play Pad
+        function playPad(id) {
+            const pad = pads[id];
+            const padElement = document.getElementById(`pad-${id}`);
+            
+            // Resume audio context if suspended
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            // Visual feedback
+            padElement.classList.add('hit');
+            setTimeout(() => padElement.classList.remove('hit'), 100);
+            
+            // Play sound
+            if (pad.sound) {
+                if (typeof pad.sound === 'function') {
+                    pad.sound();
+                } else {
+                    // Play audio file
+                    const source = audioContext.createBufferSource();
+                    source.buffer = pad.sound;
+                    source.connect(masterGain);
+                    source.start(0);
+                }
+                
+                // Animate waveform
+                animateWaveform();
+            }
+        }
+
+        // Keyboard Controls
+        function setupKeyboardControls() {
+            document.addEventListener('keydown', (e) => {
+                const key = e.key.toUpperCase();
+                const pad = pads.find(p => p.key === key);
+                if (pad) {
+                    e.preventDefault();
+                    playPad(pad.id);
+                }
+            });
+        }
+
+        // Waveform Visualization
+        function renderWaveform() {
+            const container = document.getElementById('waveformBars');
+            for (let i = 0; i < 50; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'waveform-bar';
+                bar.style.height = '5px';
+                container.appendChild(bar);
+            }
+        }
+
+        function animateWaveform() {
+            const bars = document.querySelectorAll('.waveform-bar');
+            bars.forEach((bar, i) => {
+                const height = Math.random() * 80 + 10;
+                bar.style.height = height + 'px';
+                setTimeout(() => {
+                    bar.style.height = '5px';
+                }, 200);
+            });
+        }
+
+        // File Upload
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            for (let file of files) {
+                if (file.type.startsWith('audio/')) {
+                    loadAudioFile(file);
+                }
+            }
+        }
+
+        function loadAudioFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                audioContext.decodeAudioData(e.target.result, function(buffer) {
+                    uploadedSounds.push({
+                        name: file.name,
+                        buffer: buffer
+                    });
+                    renderSoundLibrary();
+                    alert(`✅ Loaded: ${file.name}`);
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Drag & Drop
+        function setupDragDrop() {
+            const zone = document.getElementById('uploadZone');
+            
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+            
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                for (let file of files) {
+                    if (file.type.startsWith('audio/')) {
+                        loadAudioFile(file);
+                    }
+                }
+            });
+        }
+
+        // Sound Library
+        function renderSoundLibrary() {
+            const defaultList = document.getElementById('soundList');
+            defaultList.innerHTML = `
+                <div class="sound-item">
+                    <span class="sound-name">🥁 Kick (Synthesized)</span>
+                    <div class="sound-actions">
+                        <button class="sound-btn" onclick="playPad(0)">▶️ Play</button>
+                    </div>
+                </div>
+                <div class="sound-item">
+                    <span class="sound-name">🥁 Snare (Synthesized)</span>
+                    <div class="sound-actions">
+                        <button class="sound-btn" onclick="playPad(1)">▶️ Play</button>
+                    </div>
+                </div>
+                <div class="sound-item">
+                    <span class="sound-name">👏 Clap (Synthesized)</span>
+                    <div class="sound-actions">
+                        <button class="sound-btn" onclick="playPad(2)">▶️ Play</button>
+                    </div>
+                </div>
+            `;
+            
+            const uploadedList = document.getElementById('uploadedSounds');
+            if (uploadedSounds.length === 0) {
+                uploadedList.innerHTML = '<div style="color: #64748b; text-align: center; padding: 20px;">No uploaded sounds yet</div>';
+            } else {
+                uploadedList.innerHTML = uploadedSounds.map((sound, i) => `
+                    <div class="sound-item">
+                        <span class="sound-name">🎵 ${sound.name}</span>
+                        <div class="sound-actions">
+                            <button class="sound-btn" onclick="previewSound(${i})">▶️ Play</button>
+                            <button class="sound-btn" onclick="assignToPad(${i})">📍 Assign</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function previewSound(index) {
+            const sound = uploadedSounds[index];
+            const source = audioContext.createBufferSource();
+            source.buffer = sound.buffer;
+            source.connect(masterGain);
+            source.start(0);
+            animateWaveform();
+        }
+
+        function assignToPad(soundIndex) {
+            const padId = prompt(`Assign to which pad? (0-15):\n\n${pads.map(p => `${p.id}: ${p.name} (${p.key})`).join('\n')}`);
+            if (padId !== null && padId >= 0 && padId < 16) {
+                pads[padId].sound = uploadedSounds[soundIndex].buffer;
+                renderPads();
+                alert(`✅ Assigned ${uploadedSounds[soundIndex].name} to ${pads[padId].name}`);
+            }
+        }
+
+        function loadDefaultSounds() {
+            generateDefaultSounds();
+            alert('✅ Default synthesized sounds reloaded!');
+        }
+
+        // Transport Controls
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playBtn');
+            const icon = document.getElementById('playIcon');
+            const text = document.getElementById('playText');
+            
+            if (isPlaying) {
+                btn.classList.remove('stopped');
+                btn.classList.add('playing');
+                icon.textContent = '⏸️';
+                text.textContent = 'Stop';
+            } else {
+                btn.classList.remove('playing');
+                btn.classList.add('stopped');
+                icon.textContent = '▶️';
+                text.textContent = 'Play';
+            }
+        }
+
+        // View Switching
+        function switchView(viewName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById(viewName).classList.add('active');
+        }
+
+        // Initialize on load
+        init();
+        
+        // SYNTHESIZER ENGINE
+        
+        // Render Synth Keyboard
+        function renderSynthKeyboard() {
+            const keyboard = document.getElementById('synthKeyboard');
+            const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+            const blackKeys = ['C#', 'D#', null, 'F#', 'G#', 'A#', null];
+            
+            let html = '';
+            
+            // Two octaves
+            for (let octave = 0; octave < 2; octave++) {
+                for (let i = 0; i < whiteKeys.length; i++) {
+                    const note = whiteKeys[i];
+                    const actualOctave = currentOctave + octave;
+                    html += `
+                        <div style="flex: 1; background: linear-gradient(to bottom, #ffffff, #e5e5e5); border: 1px solid #000; border-radius: 0 0 8px 8px; cursor: pointer; position: relative; transition: all 0.1s;"
+                             onmousedown="playNote('${note}', ${actualOctave}, this)"
+                             onmouseup="stopNote('${note}', ${actualOctave}, this)"
+                             onmouseleave="stopNote('${note}', ${actualOctave}, this)"
+                             id="key-${note}${actualOctave}">
+                            <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); color: #000; font-size: 0.7em; font-weight: 600;">
+                                ${note}${actualOctave}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            keyboard.innerHTML = html;
+            
+            // Add black keys on top
+            const blackKeyPositions = [0.7, 1.7, 3.7, 4.7, 5.7, 7.7, 8.7, 10.7, 11.7, 12.7];
+            blackKeyPositions.forEach((pos, idx) => {
+                const octave = Math.floor(idx / 5);
+                const noteIdx = idx % 5;
+                const blackKeyNotes = ['C#', 'D#', 'F#', 'G#', 'A#'];
+                const note = blackKeyNotes[noteIdx];
+                const actualOctave = currentOctave + octave;
+                
+                const blackKey = document.createElement('div');
+                blackKey.style.cssText = `
+                    position: absolute;
+                    left: ${pos * 7.14}%;
+                    top: 0;
+                    width: 5%;
+                    height: 60%;
+                    background: linear-gradient(to bottom, #000, #333);
+                    border: 1px solid #000;
+                    border-radius: 0 0 4px 4px;
+                    cursor: pointer;
+                    z-index: 10;
+                `;
+                blackKey.id = `key-${note}${actualOctave}`;
+                blackKey.onmousedown = function() { playNote(note, actualOctave, this); };
+                blackKey.onmouseup = function() { stopNote(note, actualOctave, this); };
+                blackKey.onmouseleave = function() { stopNote(note, actualOctave, this); };
+                keyboard.appendChild(blackKey);
+            });
+        }
+        
+        // Play Note
+        function playNote(note, octave, element) {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            const freq = noteFrequencies[note] * Math.pow(2, octave - 4);
+            const noteKey = `${note}${octave}`;
+            
+            // Visual feedback
+            if (element) {
+                element.style.transform = 'scale(0.98)';
+                element.style.filter = 'brightness(0.8)';
+            }
+            
+            if (vocoderActive && micSource) {
+                // Vocoder mode
+                playVocodedNote(freq, noteKey);
+            } else {
+                // Regular synth mode
+                playSynthNote(freq, noteKey);
+            }
+        }
+        
+        // Play Synth Note
+        function playSynthNote(freq, noteKey) {
+            // Stop existing note if mono mode
+            if (synthMode === 'mono') {
+                activeNotes.forEach((nodes, key) => {
+                    nodes.forEach(node => {
+                        if (node.gain) {
+                            node.gain.gain.setTargetAtTime(0, audioContext.currentTime, 0.01);
+                        }
+                    });
+                });
+                activeNotes.clear();
+            }
+            
+            const now = audioContext.currentTime;
+            const nodes = [];
+            
+            // Create unison (multiple detuned oscillators)
+            const unisonCount = synthMode === 'poly' ? 2 : 3;
+            
+            for (let i = 0; i < unisonCount; i++) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                // Oscillator
+                osc.type = synthParams.waveform;
+                osc.frequency.value = freq;
+                
+                // Detune for unison
+                if (i > 0) {
+                    osc.detune.value = (i % 2 === 0 ? 1 : -1) * synthParams.detune * i;
+                }
+                
+                // LFO for vibrato
+                const lfo = audioContext.createOscillator();
+                const lfoGain = audioContext.createGain();
+                lfo.frequency.value = synthParams.lfoRate;
+                lfoGain.gain.value = synthParams.lfoDepth;
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                lfo.start(now);
+                
+                // Filter
+                filter.type = synthParams.filterType;
+                filter.frequency.value = synthParams.filterCutoff;
+                filter.Q.value = synthParams.resonance;
+                
+                // ADSR Envelope
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(1 / unisonCount, now + synthParams.attack);
+                gain.gain.linearRampToValueAtTime(synthParams.sustain / unisonCount, now + synthParams.attack + synthParams.decay);
+                
+                // Connect
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+                
+                osc.start(now);
+                
+                nodes.push({ osc, gain, filter, lfo });
+            }
+            
+            activeNotes.set(noteKey, nodes);
+            animateWaveform();
+        }
+        
+        // Stop Note
+        function stopNote(note, octave, element) {
+            const noteKey = `${note}${octave}`;
+            
+            // Visual feedback
+            if (element) {
+                element.style.transform = '';
+                element.style.filter = '';
+            }
+            
+            if (activeNotes.has(noteKey)) {
+                const nodes = activeNotes.get(noteKey);
+                const now = audioContext.currentTime;
+                
+                nodes.forEach(node => {
+                    // Release envelope
+                    node.gain.gain.cancelScheduledValues(now);
+                    node.gain.gain.setValueAtTime(node.gain.gain.value, now);
+                    node.gain.gain.exponentialRampToValueAtTime(0.001, now + synthParams.release);
+                    
+                    // Stop oscillators
+                    node.osc.stop(now + synthParams.release + 0.1);
+                    if (node.lfo) node.lfo.stop(now + synthParams.release + 0.1);
+                });
+                
+                activeNotes.delete(noteKey);
+            }
+        }
+        
+        // Setup Synth Keyboard Controls
+        function setupSynthKeyboardControls() {
+            const keyMap = {
+                'a': 'C', 'w': 'C#', 's': 'D', 'e': 'D#', 'd': 'E', 'f': 'F',
+                't': 'F#', 'g': 'G', 'y': 'G#', 'h': 'A', 'u': 'A#', 'j': 'B', 'k': 'C'
+            };
+            
+            const pressedKeys = new Set();
+            
+            document.addEventListener('keydown', (e) => {
+                const key = e.key.toLowerCase();
+                
+                // Octave shift
+                if (key === 'z' && currentOctave > 0) {
+                    currentOctave--;
+                    renderSynthKeyboard();
+                    return;
+                }
+                if (key === 'x' && currentOctave < 7) {
+                    currentOctave++;
+                    renderSynthKeyboard();
+                    return;
+                }
+                
+                // Play notes
+                if (keyMap[key] && !pressedKeys.has(key)) {
+                    pressedKeys.add(key);
+                    const note = keyMap[key];
+                    const octave = note === 'C' && key === 'k' ? currentOctave + 1 : currentOctave;
+                    const element = document.getElementById(`key-${note}${octave}`);
+                    playNote(note, octave, element);
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                const key = e.key.toLowerCase();
+                if (keyMap[key]) {
+                    pressedKeys.delete(key);
+                    const note = keyMap[key];
+                    const octave = note === 'C' && key === 'k' ? currentOctave + 1 : currentOctave;
+                    const element = document.getElementById(`key-${note}${octave}`);
+                    stopNote(note, octave, element);
+                }
+            });
+        }
+        
+        // VOCODER MODE
+        function selectSynthMode(mode) {
+            synthMode = mode;
+            
+            // Update button states
+            const buttons = event.target.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide vocoder controls
+            const vocoderStatus = document.getElementById('vocoderStatus');
+            const vocoderBandsControl = document.getElementById('vocoderBandsControl');
+            
+            if (mode === 'vocoder') {
+                vocoderActive = true;
+                vocoderStatus.style.display = 'block';
+                vocoderBandsControl.style.display = 'block';
+                initMicrophone();
+            } else {
+                vocoderActive = false;
+                vocoderStatus.style.display = 'none';
+                vocoderBandsControl.style.display = 'none';
+                if (micStream) {
+                    micStream.getTracks().forEach(track => track.stop());
+                    micStream = null;
+                }
+            }
+        }
+        
+        // Initialize Microphone
+        async function initMicrophone() {
+            const micStatus = document.getElementById('micStatus');
+            
+            try {
+                micStatus.textContent = '🟡 Mic: Requesting access...';
+                micStatus.style.color = '#eab308';
+                
+                micStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    } 
+                });
+                
+                micSource = audioContext.createMediaStreamSource(micStream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                micSource.connect(analyser);
+                
+                micStatus.textContent = '🟢 Mic: Active & Ready!';
+                micStatus.style.color = '#22c55e';
+                
+                alert('🎤 VOCODER READY!\n\nSpeak or sing into your microphone while playing the keyboard.\nYour voice will be synthesized through the notes you play!\n\nTry singing "Ahhh" or "Ohhh" while playing chords! 🎹');
+                
+            } catch (error) {
+                micStatus.textContent = '🔴 Mic: Access Denied';
+                micStatus.style.color = '#ef4444';
+                alert('❌ Microphone access denied.\n\nPlease allow microphone access to use the vocoder.\n\nYou can still use the regular synth mode!');
+                selectSynthMode('poly');
+            }
+        }
+        
+        // Play Vocoded Note
+        function playVocodedNote(freq, noteKey) {
+            if (!micSource || !analyser) return;
+            
+            const now = audioContext.currentTime;
+            
+            // Create carrier oscillator (synthesizer)
+            const carrier = audioContext.createOscillator();
+            const carrierGain = audioContext.createGain();
+            
+            carrier.type = synthParams.waveform;
+            carrier.frequency.value = freq;
+            
+            // Get mic input (modulator)
+            const modulator = audioContext.createGain();
+            analyser.connect(modulator);
+            
+            // Simple vocoder effect: multiply carrier with mic input
+            const vocoderGain = audioContext.createGain();
+            
+            // ADSR
+            vocoderGain.gain.setValueAtTime(0, now);
+            vocoderGain.gain.linearRampToValueAtTime(0.5, now + synthParams.attack);
+            vocoderGain.gain.linearRampToValueAtTime(synthParams.sustain * 0.5, now + synthParams.attack + synthParams.decay);
+            
+            carrier.connect(carrierGain);
+            carrierGain.connect(vocoderGain);
+            vocoderGain.connect(masterGain);
+            
+            carrier.start(now);
+            
+            activeNotes.set(noteKey, [{ osc: carrier, gain: vocoderGain }]);
+            animateWaveform();
+        }
+        
+        // SYNTH PARAMETER UPDATES
+        function updateWaveform() {
+            synthParams.waveform = document.getElementById('waveform').value;
+        }
+        
+        function updateFilter() {
+            synthParams.filterType = document.getElementById('filterType').value;
+        }
+        
+        function updateFilterCutoff(value) {
+            synthParams.filterCutoff = parseFloat(value);
+            document.getElementById('cutoffDisplay').textContent = value + ' Hz';
+            
+            // Update active notes
+            activeNotes.forEach(nodes => {
+                nodes.forEach(node => {
+                    if (node.filter) {
+                        node.filter.frequency.setTargetAtTime(synthParams.filterCutoff, audioContext.currentTime, 0.01);
+                    }
+                });
+            });
+        }
+        
+        function updateResonance(value) {
+            synthParams.resonance = parseFloat(value);
+            document.getElementById('resonanceDisplay').textContent = value;
+            
+            activeNotes.forEach(nodes => {
+                nodes.forEach(node => {
+                    if (node.filter) {
+                        node.filter.Q.setTargetAtTime(synthParams.resonance, audioContext.currentTime, 0.01);
+                    }
+                });
+            });
+        }
+        
+        function updateEnvelope() {
+            synthParams.attack = parseFloat(document.getElementById('synthAttack').value);
+            synthParams.decay = parseFloat(document.getElementById('synthDecay').value);
+            synthParams.sustain = parseFloat(document.getElementById('synthSustain').value);
+            synthParams.release = parseFloat(document.getElementById('synthRelease').value);
+            
+            document.getElementById('attackDisplay').textContent = synthParams.attack.toFixed(2) + 's';
+            document.getElementById('decayDisplay').textContent = synthParams.decay.toFixed(2) + 's';
+            document.getElementById('sustainDisplay').textContent = (synthParams.sustain * 100).toFixed(0) + '%';
+            document.getElementById('releaseDisplay').textContent = synthParams.release.toFixed(2) + 's';
+        }
+        
+        function updateDetune(value) {
+            synthParams.detune = parseFloat(value);
+            document.getElementById('detuneDisplay').textContent = value + ' cents';
+        }
+        
+        function updateLFO() {
+            synthParams.lfoRate = parseFloat(document.getElementById('lfoRate').value);
+            synthParams.lfoDepth = parseFloat(document.getElementById('lfoDepth').value);
+            
+            document.getElementById('lfoDisplay').textContent = synthParams.lfoRate.toFixed(1) + ' Hz';
+            document.getElementById('lfoDepthDisplay').textContent = synthParams.lfoDepth + '%';
+        }
+        
+        function updateChorus(value) {
+            document.getElementById('chorusDisplay').textContent = value > 0 ? value + '%' : 'Off';
+        }
+        
+        function updateDelay(value) {
+            document.getElementById('delayDisplay').textContent = value > 0 ? value + '%' : 'Off';
+        }
+        
+        function updateReverb(value) {
+            document.getElementById('synthReverbDisplay').textContent = value + '%';
+        }
+        
+        function updateDistortion(value) {
+            document.getElementById('distortionDisplay').textContent = value > 0 ? value + '%' : 'Off';
+        }
+        
+        function updateVocoder() {
+            const bands = document.getElementById('vocoderBands').value;
+            document.getElementById('bandsDisplay').textContent = bands + ' bands';
+        }
+        
+        // PRESETS
+        function loadPreset(presetName) {
+            const presets = {
+                juno: {
+                    waveform: 'sawtooth',
+                    filterType: 'lowpass',
+                    filterCutoff: 1200,
+                    resonance: 8,
+                    attack: 0.2,
+                    decay: 0.3,
+                    sustain: 0.7,
+                    release: 1.5,
+                    detune: 15
+                },
+                brass: {
+                    waveform: 'sawtooth',
+                    filterType: 'lowpass',
+                    filterCutoff: 2500,
+                    resonance: 12,
+                    attack: 0.1,
+                    decay: 0.2,
+                    sustain: 0.8,
+                    release: 0.3,
+                    detune: 8
+                },
+                bass: {
+                    waveform: 'square',
+                    filterType: 'lowpass',
+                    filterCutoff: 800,
+                    resonance: 15,
+                    attack: 0.01,
+                    decay: 0.15,
+                    sustain: 0.5,
+                    release: 0.2,
+                    detune: 5
+                },
+                lead: {
+                    waveform: 'sawtooth',
+                    filterType: 'lowpass',
+                    filterCutoff: 3500,
+                    resonance: 10,
+                    attack: 0.01,
+                    decay: 0.2,
+                    sustain: 0.6,
+                    release: 0.3,
+                    detune: 20
+                },
+                pluck: {
+                    waveform: 'triangle',
+                    filterType: 'lowpass',
+                    filterCutoff: 2000,
+                    resonance: 5,
+                    attack: 0.001,
+                    decay: 0.3,
+                    sustain: 0.1,
+                    release: 0.2,
+                    detune: 0
+                },
+                strings: {
+                    waveform: 'sawtooth',
+                    filterType: 'lowpass',
+                    filterCutoff: 1800,
+                    resonance: 6,
+                    attack: 0.4,
+                    decay: 0.3,
+                    sustain: 0.8,
+                    release: 1.0,
+                    detune: 12
+                }
+            };
+            
+            const preset = presets[presetName];
+            if (preset) {
+                // Apply preset
+                synthParams = { ...synthParams, ...preset };
+                
+                // Update UI
+                document.getElementById('waveform').value = preset.waveform;
+                document.getElementById('filterType').value = preset.filterType;
+                document.getElementById('filterCutoff').value = preset.filterCutoff;
+                document.getElementById('resonance').value = preset.resonance;
+                document.getElementById('synthAttack').value = preset.attack;
+                document.getElementById('synthDecay').value = preset.decay;
+                document.getElementById('synthSustain').value = preset.sustain;
+                document.getElementById('synthRelease').value = preset.release;
+                document.getElementById('detune').value = preset.detune;
+                
+                // Update displays
+                updateFilterCutoff(preset.filterCutoff);
+                updateResonance(preset.resonance);
+                updateEnvelope();
+                updateDetune(preset.detune);
+                
+                alert(`✅ Loaded preset: ${presetName.toUpperCase()}\n\nTry playing some notes!`);
+            }
+        }
+        
+        // Auto-play notification
+        setTimeout(() => {
+            alert('🎵 Mayhem Module Ready!\n\n✅ 16 drum pads loaded with synthesized sounds\n✅ Click pads or use keyboard (Q,W,E,R / A,S,D,F / Z,X,C,V / 1,2,3,4)\n✅ Upload your own samples via the upload zone\n✅ Drag & drop audio files supported\n\nTip: If you have sounds in a Supabase bucket, you can add the URL loading feature!');
+        }, 500);
+    </script>
+</body>
+</html>

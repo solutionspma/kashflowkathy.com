@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayhem Module - Pitch Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 20px 60px rgba(168, 85, 247, 0.4);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            font-size: 4em;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+        
+        .tagline {
+            font-size: 1.5em;
+            color: #9ca3af;
+            margin-bottom: 40px;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .card {
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(168, 85, 247, 0.8);
+            box-shadow: 0 20px 60px rgba(168, 85, 247, 0.3);
+        }
+        
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .card h3 {
+            font-size: 1.8em;
+            color: #a855f7;
+            margin-bottom: 15px;
+        }
+        
+        .card p {
+            color: #9ca3af;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .card ul {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+        
+        .card li {
+            color: #d1d5db;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+        }
+        
+        .card li:last-child {
+            border-bottom: none;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(168, 85, 247, 0.5);
+        }
+        
+        .btn-secondary {
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid #a855f7;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .feature {
+            background: rgba(168, 85, 247, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .feature h4 {
+            color: #ec4899;
+            margin-bottom: 10px;
+        }
+        
+        .feature p {
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+        
+        .cta {
+            text-align: center;
+            margin-top: 60px;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+            border-radius: 20px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        
+        .cta h2 {
+            font-size: 2.5em;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        
+        .cta p {
+            font-size: 1.2em;
+            color: #d1d5db;
+            margin-bottom: 30px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            margin: 0 5px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            color: #9ca3af;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <div class="logo">🎛️</div>
+            <h1>Mayhem Module</h1>
+            <p class="tagline">Professional Sound Design Hub for Pitch Studio</p>
+            <div>
+                <span class="badge">✓ MPC-Inspired</span>
+                <span class="badge">✓ 10 Plugins</span>
+                <span class="badge">✓ 200+ Presets</span>
+            </div>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">📚</div>
+                <h3>Plugin Library</h3>
+                <p>Browse and manage a complete collection of instruments and effects plugins inspired by professional MPC software.</p>
+                <ul>
+                    <li>🥁 Drumsynth Multi & Kick</li>
+                    <li>🎹 Solina String Ensemble</li>
+                    <li>⚡ Hype Wavetable Synth</li>
+                    <li>🎸 Amp Simulator FX</li>
+                    <li>🔊 Bassline Synthesizer</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🎹</div>
+                <h3>Step Sequencer</h3>
+                <p>Create beats and sequences with an intuitive 16-step grid interface inspired by classic drum machines.</p>
+                <ul>
+                    <li>16-step pattern sequencer</li>
+                    <li>8 instrument tracks</li>
+                    <li>Pattern management</li>
+                    <li>Swing & gate controls</li>
+                    <li>Randomization tools</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">💾</div>
+                <h3>Preset Manager</h3>
+                <p>Access and organize 200+ professionally crafted presets across all instruments and effects.</p>
+                <ul>
+                    <li>200+ total presets</li>
+                    <li>Organized by category</li>
+                    <li>Quick preview & load</li>
+                    <li>Custom preset creation</li>
+                    <li>Favorites system</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🎨</div>
+                <h3>Custom Skins</h3>
+                <p>Personalize your workflow with custom plugin skins and visual themes.</p>
+                <ul>
+                    <li>20+ custom skin designs</li>
+                    <li>Dark & light themes</li>
+                    <li>Retro & modern styles</li>
+                    <li>Download & install</li>
+                    <li>XML/JSON structure</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📖</div>
+                <h3>API Documentation</h3>
+                <p>Complete technical documentation for all plugin parameters, structures, and configurations.</p>
+                <ul>
+                    <li>Plugin architecture guides</li>
+                    <li>Parameter references</li>
+                    <li>XML schema documentation</li>
+                    <li>Preset format specs</li>
+                    <li>GUI layout structure</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🚀</div>
+                <h3>Coming Soon</h3>
+                <p>Exciting new features in development based on the MPC resources framework.</p>
+                <ul>
+                    <li>🎵 MIDI controller support</li>
+                    <li>🎚️ Mixer with automation</li>
+                    <li>🔄 Effect chain builder</li>
+                    <li>☁️ Cloud preset sync</li>
+                    <li>🤝 Collaboration tools</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h4>Real-time Performance</h4>
+                <p>Optimized for smooth, responsive audio manipulation</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <h4>Beautiful Interface</h4>
+                <p>MPC-inspired design with modern aesthetics</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <h4>Responsive Design</h4>
+                <p>Works seamlessly on desktop and tablet</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔧</div>
+                <h4>Fully Customizable</h4>
+                <p>Tailor every aspect to your workflow</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Audio Plugins</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">200+</div>
+                <div class="stat-label">Presets</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">20+</div>
+                <div class="stat-label">Custom Skins</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Categories</div>
+            </div>
+        </div>
+
+        <div class="cta">
+            <h2>Ready to Create?</h2>
+            <p>Launch the Mayhem Module and start producing professional sounds</p>
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <a href="/mayhem" class="btn">🎛️ Launch Mayhem Module</a>
+                <a href="mpc-repo-viewer.html" class="btn btn-secondary">📚 View MPC Resources</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,2396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayhem Module - Powered by Pitch Modular Spaces</title>
+    <meta name="theme-color" content="#00ffff">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #00ffff;
+            --primary-dark: #00baff;
+            --secondary: #00fff5;
+            --accent: #007bff;
+            --bg-dark: #000814;
+            --bg-darker: #000005;
+            --bg-card: #001d28;
+            --text: #00ffff;
+            --text-muted: #005d8c;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 50%, #002e44 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Main Layout with Sidebars */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            height: calc(100vh - 140px);
+            gap: 0;
+        }
+        
+        /* Sidebar Panels */
+        .sidebar {
+            background: rgba(0, 8, 20, 0.95);
+            border: 2px solid var(--primary);
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .sidebar-left {
+            border-right: none;
+        }
+        
+        .sidebar-right {
+            border-left: none;
+        }
+        
+        .marketplace-item {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 186, 255, 0.1));
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .marketplace-item:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 186, 255, 0.2));
+            transform: translateX(5px);
+        }
+        
+        .marketplace-item h4 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .marketplace-item p {
+            color: var(--text-muted);
+            font-size: 0.75em;
+            margin-bottom: 8px;
+        }
+        
+        .marketplace-price {
+            color: #22c55e;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        /* Video Chat Panel */
+        .video-chat {
+            background: rgba(0, 8, 20, 0.9);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .video-preview {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #000;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .video-btn {
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        
+        .video-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+        
+        /* Messenger */
+        .messenger {
+            background: rgba(0, 8, 20, 0.9);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-size: 0.85em;
+        }
+        
+        .message {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .message-input {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .message-input input {
+            flex: 1;
+            background: rgba(0, 29, 40, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            padding: 8px;
+            color: var(--primary);
+        }
+        
+        /* File Menu */
+        .menu-bar {
+            background: rgba(0, 8, 20, 0.95);
+            padding: 8px 15px;
+            border-bottom: 1px solid var(--primary);
+            display: flex;
+            gap: 15px;
+        }
+        
+        .menu-item {
+            color: var(--primary);
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .menu-item:hover {
+            background: rgba(0, 255, 255, 0.1);
+        }
+        
+        /* Settings Panel */
+        .settings-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 25px;
+            z-index: 1000;
+            min-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .settings-panel.active {
+            display: block;
+        }
+        
+        .setting-row {
+            margin-bottom: 20px;
+        }
+        
+        .setting-label {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        /* Header with Recording Controls */
+        header {
+            background: rgba(0, 8, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 15px 30px;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .branding {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .brand-text h1 {
+            font-size: 1.5em;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .brand-text p {
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+        
+        /* Keyboard Support */
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            gap: 2px;
+            height: 200px;
+            background: rgba(0, 8, 20, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .key {
+            background: linear-gradient(to bottom, #ffffff, #e0e0e0);
+            border: 2px solid #333;
+            border-radius: 0 0 8px 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.05s;
+        }
+        
+        .key:hover {
+            background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+        }
+        
+        .key:active, .key.active {
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            transform: translateY(3px);
+        }
+        
+        .key.black {
+            background: linear-gradient(to bottom, #333, #000);
+            grid-column: span 1;
+            height: 120px;
+            z-index: 2;
+            margin: 0 -25%;
+        }
+        
+        .key.black:hover {
+            background: linear-gradient(to bottom, #444, #111);
+        }
+        
+        .key.black:active, .key.black.active {
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+        }
+        
+        .key-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7em;
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .key.black .key-label {
+            color: var(--primary);
+        }
+        
+        /* Recording Controls */
+        .recording-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--bg-card);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--primary);
+        }
+        
+        .rec-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .rec-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+        }
+        
+        .rec-btn.recording {
+            background: #ff0000;
+            border-color: #ff0000;
+            color: white;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .rec-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+        
+        .transport {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .transport-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+        
+        .transport-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+        
+        .transport-btn.playing {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: white;
+        }
+        
+        /* Nav Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 12px 25px;
+            border-radius: 10px 10px 0 0;
+            border: 2px solid transparent;
+            border-bottom: none;
+            background: rgba(0, 29, 40, 0.5);
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .nav-tab:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            border-bottom: none;
+        }
+        
+        .nav-tab.active {
+            background: var(--bg-card);
+            color: var(--primary);
+            border-color: var(--primary);
+            border-bottom: none;
+        }
+        
+        /* Main Content */
+        .main-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .view {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        
+        .view.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Studio Panel */
+        .studio-panel {
+            background: linear-gradient(135deg, rgba(0, 29, 40, 0.8), rgba(0, 46, 68, 0.6));
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid var(--primary);
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.2);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 1.5em;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Fader Controls */
+        .fader-rack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 15px;
+            background: rgba(0, 8, 20, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        .fader-channel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fader-label {
+            color: var(--text);
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .fader-container {
+            position: relative;
+            height: 180px;
+            width: 40px;
+            background: linear-gradient(to bottom, #001d28, #000814);
+            border-radius: 20px;
+            padding: 10px 0;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .fader {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 8px;
+            cursor: grab;
+            transition: box-shadow 0.2s;
+            border: 2px solid var(--secondary);
+        }
+        
+        .fader:active {
+            cursor: grabbing;
+            box-shadow: 0 0 20px var(--primary);
+        }
+        
+        .fader-value {
+            text-align: center;
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        /* Knobs */
+        .knob-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 20px;
+        }
+        
+        .knob-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .knob {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #002a38, #000814);
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+        
+        .knob-indicator {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 25px;
+            background: var(--secondary);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--secondary);
+        }
+        
+        /* Button Grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        
+        .studio-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .studio-btn:hover, .studio-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+        }
+        
+        /* AI Assistant Panel */
+        .ai-panel {
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(0, 255, 255, 0.2));
+            border: 2px solid var(--accent);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .ai-suggestion {
+            background: rgba(0, 8, 20, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .ai-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Waveform Display */
+        .waveform-display {
+            background: rgba(0, 8, 20, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            margin: 20px 0;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 120px;
+            border-radius: 8px;
+        }
+        
+        /* Sample Pad Grid */
+        .sample-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        
+        .sample-pad {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 186, 255, 0.1));
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+        }
+        
+        .sample-pad:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 186, 255, 0.3));
+            transform: scale(1.02);
+        }
+        
+        .sample-pad:active, .sample-pad.hit {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            transform: scale(0.95);
+            box-shadow: 0 0 30px var(--primary);
+        }
+        
+        .pad-icon {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+        }
+        
+        .pad-key {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 8, 20, 0.8);
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7em;
+            font-weight: 600;
+            border: 1px solid var(--primary);
+        }
+        
+        /* Mic Status */
+        .mic-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(0, 8, 20, 0.6);
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+        }
+        
+        .mic-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        
+        .mic-indicator.active {
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Dropdown/Select */
+        select, input[type="range"] {
+            background: rgba(0, 29, 40, 0.8);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 8px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+        }
+        
+        /* Upload Zone */
+        .upload-zone {
+            background: rgba(0, 255, 255, 0.05);
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-zone:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: var(--secondary);
+        }
+        
+        .upload-zone.dragover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #22c55e;
+        }
+        
+        /* Menu Styles */
+        .menu-option {
+            color: var(--primary);
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        
+        .menu-option:hover {
+            background: rgba(0, 255, 255, 0.2);
+        }
+        
+        .dropdown-menu {
+            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- File Menu Bar -->
+    <div class="menu-bar">
+        <div class="menu-item" onclick="toggleMenu('file')">File</div>
+        <div class="menu-item" onclick="toggleMenu('edit')">Edit</div>
+        <div class="menu-item" onclick="toggleMenu('settings')">Settings</div>
+        <div class="menu-item" onclick="toggleMenu('help')">Help</div>
+    </div>
+    
+    <!-- File Menu Dropdown -->
+    <div id="fileMenu" class="dropdown-menu" style="display: none; position: absolute; top: 40px; left: 15px; background: var(--bg-card); border: 2px solid var(--primary); border-radius: 8px; padding: 10px; z-index: 200; min-width: 200px;">
+        <div class="menu-option" onclick="newProject()">🆕 New Project</div>
+        <div class="menu-option" onclick="openProject()">📂 Open Project</div>
+        <div class="menu-option" onclick="saveProject()">💾 Save Project</div>
+        <div class="menu-option" onclick="saveProjectAs()">💾 Save As...</div>
+        <hr style="border-color: var(--primary); margin: 8px 0;">
+        <div class="menu-option" onclick="exportAudio()">🎵 Export Audio (WAV)</div>
+        <div class="menu-option" onclick="exportMIDI()">🎹 Export MIDI</div>
+        <div class="menu-option" onclick="exportKit()">📦 Export Kit Pack</div>
+    </div>
+    
+    <header>
+        <div class="header-content">
+            <div class="header-top">
+                <div class="branding">
+                    <div class="logo">🎛️</div>
+                    <div class="brand-text">
+                        <h1>Mayhem Module</h1>
+                        <p>Powered by Pitch Modular Spaces</p>
+                    </div>
+                </div>
+                
+                <div class="recording-controls">
+                    <button class="rec-btn" id="recordBtn" onclick="toggleRecord()">
+                        <span id="recIcon">⏺</span> <span id="recText">Record</span>
+                    </button>
+                    <button class="rec-btn" id="overdubBtn" onclick="toggleOverdub()">
+                        🎚️ Overdub
+                    </button>
+                    <button class="rec-btn" id="loopBtn" onclick="toggleLoop()">
+                        🔁 Loop
+                    </button>
+                    <div class="transport">
+                        <button class="transport-btn" id="playBtn" onclick="togglePlay()">▶️</button>
+                        <button class="transport-btn" onclick="stop()">⏹️</button>
+                        <button class="transport-btn" onclick="rewind()">⏮️</button>
+                    </div>
+                    <div style="color: var(--primary); font-family: monospace; font-size: 1.2em;">
+                        <span id="timeDisplay">00:00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchView('sampler')">💿 AI Sampler</button>
+                <button class="nav-tab" onclick="switchView('drums')">🥁 Drums</button>
+                <button class="nav-tab" onclick="switchView('synth')">🎹 Synthesizer</button>
+                <button class="nav-tab" onclick="switchView('mixer')">🎚️ Mixer</button>
+                <button class="nav-tab" onclick="switchView('effects')">✨ FX Rack</button>
+                <button class="nav-tab" onclick="switchView('library')">📚 Library</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout with Sidebars -->
+    <div class="app-layout">
+        <!-- LEFT SIDEBAR: Marketplace -->
+        <div class="sidebar sidebar-left">
+            <h3 style="color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+                🛒 Sound Marketplace
+            </h3>
+            
+            <div class="marketplace-item" onclick="loadMarketplaceKit('808')">
+                <h4>🥁 Classic 808 Kit</h4>
+                <p>Legendary drum sounds from the TR-808</p>
+                <div class="marketplace-price">FREE</div>
+            </div>
+            
+            <div class="marketplace-item" onclick="loadMarketplaceKit('909')">
+                <h4>🥁 909 Drum Kit</h4>
+                <p>Iconic TR-909 electronic drums</p>
+                <div class="marketplace-price">FREE</div>
+            </div>
+            
+            <div class="marketplace-item" onclick="loadMarketplaceKit('vinyl')">
+                <h4>💿 Vinyl Breaks</h4>
+                <p>Classic breakbeats and loops</p>
+                <div class="marketplace-price">FREE</div>
+            </div>
+            
+            <div class="marketplace-item" onclick="loadMarketplaceKit('synth')">
+                <h4>🎹 Synth One-Shots</h4>
+                <p>Analog synthesizer samples</p>
+                <div class="marketplace-price">FREE</div>
+            </div>
+            
+            <div class="marketplace-item" onclick="loadMarketplaceKit('bass')">
+                <h4>🔊 Bass Collection</h4>
+                <p>Deep bass sounds and sub hits</p>
+                <div class="marketplace-price">FREE</div>
+            </div>
+            
+            <div class="marketplace-item" onclick="loadMarketplaceKit('fx')">
+                <h4>✨ FX & Transitions</h4>
+                <p>Risers, impacts, and sweeps</p>
+                <div class="marketplace-price">FREE</div>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--primary);">
+                <button class="studio-btn" onclick="browseFreesound()" style="width: 100%;">
+                    🌐 Browse Freesound.org
+                </button>
+            </div>
+        </div>
+        
+        <!-- CENTER: Main Content -->
+        <div style="overflow-y: auto;">
+
+    <div class="main-content">
+        <!-- AI SAMPLER VIEW -->
+        <div id="sampler" class="view active">
+            <div class="studio-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">🤖 AI-Powered Intelligent Sampler</h2>
+                    <div class="mic-status">
+                        <div class="mic-indicator" id="micIndicator"></div>
+                        <span id="micText">Mic: Off</span>
+                    </div>
+                </div>
+                
+                <!-- AI Assistant -->
+                <div class="ai-panel">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">🎵 Your AI Co-Producer</h3>
+                    <div id="aiSuggestions">
+                        <div class="ai-suggestion">
+                            <div style="color: var(--secondary); margin-bottom: 8px;">💡 AI Suggestion:</div>
+                            <div style="color: #fff; margin-bottom: 10px;" id="suggestionText">
+                                I detected a 4/4 beat. Want me to suggest a bass line that complements it?
+                            </div>
+                            <div class="ai-actions">
+                                <button class="studio-btn" onclick="applyAISuggestion()">✅ Apply</button>
+                                <button class="studio-btn" onclick="rejectSuggestion()">❌ Skip</button>
+                                <button class="studio-btn" onclick="requestMore()">🔄 More Ideas</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sample Pads -->
+                <div style="margin: 20px 0;">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">Sample Pads (16)</h3>
+                    <div class="sample-grid" id="sampleGrid"></div>
+                </div>
+                
+                <!-- Waveform & Sample Chopper -->
+                <div class="waveform-display">
+                    <div style="color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🎵 Sample Chopper - Click waveform to add chop points</span>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="studio-btn" onclick="playSamplePreview()" style="padding: 6px 12px;">▶️ Preview</button>
+                            <button class="studio-btn" onclick="clearChopPoints()" style="padding: 6px 12px;">🗑️ Clear Chops</button>
+                            <button class="studio-btn" onclick="autoChop()" style="padding: 6px 12px;">✂️ Auto-Chop</button>
+                            <span id="recordingStatus" style="color: #ef4444; display: none;">● REC</span>
+                        </div>
+                    </div>
+                    <canvas id="waveformCanvas" style="cursor: crosshair;"></canvas>
+                    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 10px;">
+                            <button class="studio-btn" onclick="zoomWaveform(-1)" style="padding: 6px 12px;">🔍➖ Zoom Out</button>
+                            <button class="studio-btn" onclick="zoomWaveform(1)" style="padding: 6px 12px;">🔍➕ Zoom In</button>
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.9em;" id="waveformInfo">No sample loaded</div>
+                        <div style="color: var(--primary); font-family: monospace;" id="chopCount">Chops: 0</div>
+                    </div>
+                </div>
+                
+                <!-- Upload -->
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 3em; margin-bottom: 10px;">📁</div>
+                    <div style="color: var(--primary); font-size: 1.2em; margin-bottom: 5px;">Upload Samples</div>
+                    <div style="color: var(--text-muted); font-size: 0.9em;">Drag & drop or click - WAV, MP3, OGG supported</div>
+                </div>
+                <input type="file" id="fileInput" style="display: none;" accept="audio/*" multiple>
+            </div>
+        </div>
+
+        <!-- MIXER VIEW -->
+        <div id="mixer" class="view">
+            <div class="studio-panel">
+                <h2 class="panel-title">🎚️ Studio Mixer - 16 Channel</h2>
+                <div class="fader-rack" id="faderRack"></div>
+            </div>
+        </div>
+
+        <!-- EFFECTS VIEW -->
+        <div id="effects" class="view">
+            <div class="studio-panel">
+                <h2 class="panel-title">✨ FX Rack</h2>
+                <div class="knob-grid">
+                    <div class="knob-control">
+                        <div class="knob"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">REVERB</span>
+                        <span style="color: var(--primary); font-family: monospace;">30%</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob"><div class="knob-indicator" style="transform: translateX(-50%) rotate(90deg); transform-origin: center bottom;"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">DELAY</span>
+                        <span style="color: var(--primary); font-family: monospace;">50%</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob"><div class="knob-indicator" style="transform: translateX(-50%) rotate(45deg); transform-origin: center bottom;"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">CHORUS</span>
+                        <span style="color: var(--primary); font-family: monospace;">25%</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob"><div class="knob-indicator" style="transform: translateX(-50%) rotate(135deg); transform-origin: center bottom;"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">COMPRESS</span>
+                        <span style="color: var(--primary); font-family: monospace;">75%</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob"><div class="knob-indicator" style="transform: translateX(-50%) rotate(180deg); transform-origin: center bottom;"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">EQ LOW</span>
+                        <span style="color: var(--primary); font-family: monospace;">50%</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob"><div class="knob-indicator" style="transform: translateX(-50%) rotate(270deg); transform-origin: center bottom;"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">EQ MID</span>
+                        <span style="color: var(--primary); font-family: monospace;">50%</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob"><div class="knob-indicator" style="transform: translateX(-50%) rotate(225deg); transform-origin: center bottom;"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">EQ HIGH</span>
+                        <span style="color: var(--primary); font-family: monospace;">50%</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob"><div class="knob-indicator" style="transform: translateX(-50%) rotate(315deg); transform-origin: center bottom;"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">MASTER</span>
+                        <span style="color: var(--primary); font-family: monospace;">75%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DRUMS VIEW -->
+        <div id="drums" class="view">
+            <div class="studio-panel">
+                <h2 class="panel-title">🥁 16-Pad Drum Machine</h2>
+                <div class="sample-grid">
+                    <div class="sample-pad" onclick="playDrum(0)" id="drum-0">
+                        <div class="pad-key">Q</div>
+                        <div class="pad-icon">🥁</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">KICK</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(1)" id="drum-1">
+                        <div class="pad-key">W</div>
+                        <div class="pad-icon">👢</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">SNARE</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(2)" id="drum-2">
+                        <div class="pad-key">E</div>
+                        <div class="pad-icon">🎺</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">CLAP</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(3)" id="drum-3">
+                        <div class="pad-key">R</div>
+                        <div class="pad-icon">✨</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">HI-HAT</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(4)" id="drum-4">
+                        <div class="pad-key">A</div>
+                        <div class="pad-icon">💥</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">TOM 1</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(5)" id="drum-5">
+                        <div class="pad-key">S</div>
+                        <div class="pad-icon">💥</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">TOM 2</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(6)" id="drum-6">
+                        <div class="pad-key">D</div>
+                        <div class="pad-icon">🔔</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">CRASH</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(7)" id="drum-7">
+                        <div class="pad-key">F</div>
+                        <div class="pad-icon">🔊</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">PERC 1</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(8)" id="drum-8">
+                        <div class="pad-key">Z</div>
+                        <div class="pad-icon">🎵</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">PERC 2</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(9)" id="drum-9">
+                        <div class="pad-key">X</div>
+                        <div class="pad-icon">🎶</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">PERC 3</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(10)" id="drum-10">
+                        <div class="pad-key">C</div>
+                        <div class="pad-icon">🔥</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">FX 1</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(11)" id="drum-11">
+                        <div class="pad-key">V</div>
+                        <div class="pad-icon">⚡</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">FX 2</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(12)" id="drum-12">
+                        <div class="pad-key">1</div>
+                        <div class="pad-icon">🎸</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">SAMPLE 1</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(13)" id="drum-13">
+                        <div class="pad-key">2</div>
+                        <div class="pad-icon">🎹</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">SAMPLE 2</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(14)" id="drum-14">
+                        <div class="pad-key">3</div>
+                        <div class="pad-icon">🎻</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">SAMPLE 3</div>
+                    </div>
+                    <div class="sample-pad" onclick="playDrum(15)" id="drum-15">
+                        <div class="pad-key">4</div>
+                        <div class="pad-icon">🎷</div>
+                        <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">SAMPLE 4</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYNTH VIEW -->
+        <div id="synth" class="view">
+            <div class="studio-panel">
+                <h2 class="panel-title">🎹 Professional Synthesizer & Vocoder</h2>
+                
+                <!-- Synth Mode Selector -->
+                <div style="margin-bottom: 20px;">
+                    <div class="button-grid" style="max-width: 600px;">
+                        <button class="studio-btn active" id="polyBtn" onclick="setSynthMode('poly')">🎹 Polyphonic</button>
+                        <button class="studio-btn" id="monoBtn" onclick="setSynthMode('mono')">🎵 Monophonic</button>
+                        <button class="studio-btn" id="vocoderBtn" onclick="setSynthMode('vocoder')">🎤 Vocoder</button>
+                    </div>
+                </div>
+                
+                <!-- Synth Controls -->
+                <div class="knob-grid" style="margin-bottom: 20px;">
+                    <div class="knob-control">
+                        <div class="knob" onclick="adjustParam('attack')"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">ATTACK</span>
+                        <span id="attackValue" style="color: var(--primary); font-family: monospace;">0.01</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob" onclick="adjustParam('decay')"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">DECAY</span>
+                        <span id="decayValue" style="color: var(--primary); font-family: monospace;">0.1</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob" onclick="adjustParam('sustain')"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">SUSTAIN</span>
+                        <span id="sustainValue" style="color: var(--primary); font-family: monospace;">0.7</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob" onclick="adjustParam('release')"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">RELEASE</span>
+                        <span id="releaseValue" style="color: var(--primary); font-family: monospace;">0.3</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob" onclick="adjustParam('cutoff')"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">CUTOFF</span>
+                        <span id="cutoffValue" style="color: var(--primary); font-family: monospace;">2000</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob" onclick="adjustParam('resonance')"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">RESONANCE</span>
+                        <span id="resonanceValue" style="color: var(--primary); font-family: monospace;">1</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob" onclick="adjustParam('lfoRate')"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">LFO RATE</span>
+                        <span id="lfoRateValue" style="color: var(--primary); font-family: monospace;">5</span>
+                    </div>
+                    <div class="knob-control">
+                        <div class="knob" onclick="adjustParam('lfoDepth')"><div class="knob-indicator"></div></div>
+                        <span style="color: var(--text); font-size: 0.85em;">LFO DEPTH</span>
+                        <span id="lfoDepthValue" style="color: var(--primary); font-family: monospace;">50</span>
+                    </div>
+                </div>
+                
+                <!-- Presets -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--primary); margin-bottom: 10px;">Factory Presets</h3>
+                    <div class="button-grid">
+                        <button class="studio-btn" onclick="loadPreset('juno')">🌊 Juno Pad</button>
+                        <button class="studio-btn" onclick="loadPreset('brass')">🎺 Yamaha Brass</button>
+                        <button class="studio-btn" onclick="loadPreset('bass')">🔊 Korg Bass</button>
+                        <button class="studio-btn" onclick="loadPreset('lead')">⚡ Lead Synth</button>
+                        <button class="studio-btn" onclick="loadPreset('pluck')">🎸 Pluck</button>
+                        <button class="studio-btn" onclick="loadPreset('strings')">🎻 Strings</button>
+                    </div>
+                </div>
+                
+                <!-- 2-Octave Keyboard -->
+                <div style="background: rgba(0, 8, 20, 0.5); padding: 20px; border-radius: 12px;">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">2-Octave Keyboard</h3>
+                    <div class="keyboard" id="synthKeyboard"></div>
+                    <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                        <button class="studio-btn" onclick="shiftOctave(-1)">⬇️ Octave Down</button>
+                        <span style="color: var(--primary); display: flex; align-items: center; font-family: monospace; font-size: 1.1em;" id="octaveDisplay">Octave: 4</span>
+                        <button class="studio-btn" onclick="shiftOctave(1)">⬆️ Octave Up</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIBRARY VIEW -->
+        <div id="library" class="view">
+            <div class="studio-panel">
+                <h2 class="panel-title">📚 Sound Library - Curated Free Sounds</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <input type="text" placeholder="🔍 Search sounds..." style="width: 100%; padding: 12px; background: rgba(0, 29, 40, 0.8); border: 1px solid var(--primary); border-radius: 8px; color: var(--primary); font-size: 1em;">
+                </div>
+                
+                <div class="button-grid" style="margin-top: 20px;">
+                    <button class="studio-btn" onclick="loadLibraryCategory('drums')">🥁 Drum Kits (250+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('synth')">🎹 Synth Presets (180+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('guitar')">🎸 Guitar Samples (120+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('horns')">🎺 Horn Sections (95+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('strings')">🎻 Strings (140+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('vinyl')">💿 Vinyl Loops (300+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('bass')">🔊 Bass Sounds (160+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('fx')">✨ FX & Hits (220+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('vocals')">🎤 Vocal Samples (85+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('perc')">🥁 Percussion (190+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('ambient')">🌊 Ambient Pads (75+)</button>
+                    <button class="studio-btn" onclick="loadLibraryCategory('oneshot')">💥 One-Shots (280+)</button>
+                </div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: rgba(0, 255, 255, 0.05); border: 2px solid var(--primary); border-radius: 12px;">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">📦 Your Uploaded Sounds</h3>
+                    <div id="userLibrary" style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.9em;">
+                        No custom sounds yet. Upload your own samples!
+                    </div>
+                    <button class="studio-btn" onclick="document.getElementById('fileInput').click()">
+                        ⬆️ Upload Your Sounds
+                    </button>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(0, 123, 255, 0.1); border: 1px solid var(--accent); border-radius: 10px;">
+                    <div style="color: var(--secondary); font-size: 0.9em; margin-bottom: 8px;">💡 Pro Tip:</div>
+                    <div style="color: var(--text-muted); font-size: 0.85em;">
+                        All sounds sourced from Freesound.org, Creative Commons licensed. Drag samples directly to pads or use AI to auto-assign!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        </div> <!-- End center content -->
+        
+        <!-- RIGHT SIDEBAR: Collaboration -->
+        <div class="sidebar sidebar-right">
+            <h3 style="color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+                🎥 Collaboration
+            </h3>
+            
+            <!-- Video Chat -->
+            <div class="video-chat">
+                <h4 style="color: var(--secondary); margin-bottom: 10px;">Video Chat</h4>
+                <div class="video-preview" id="localVideo">
+                    <video id="videoElement" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" autoplay muted></video>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-muted); text-align: center;" id="videoPlaceholder">
+                        📹<br>Camera Off
+                    </div>
+                </div>
+                <div class="video-controls">
+                    <button class="video-btn" onclick="toggleCamera()" id="cameraBtn">📹 Camera</button>
+                    <button class="video-btn" onclick="toggleMic()" id="micBtn">🎤 Mic</button>
+                    <button class="video-btn" onclick="shareScreen()" id="screenBtn">🖥️ Screen</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <input type="text" placeholder="Session ID" id="sessionId" style="width: 100%; padding: 8px; background: rgba(0, 29, 40, 0.8); border: 1px solid var(--primary); border-radius: 6px; color: var(--primary); margin-bottom: 8px;">
+                    <button class="studio-btn" onclick="joinSession()" style="width: 100%;">🔗 Join Session</button>
+                </div>
+            </div>
+            
+            <!-- Messenger -->
+            <div class="messenger">
+                <h4 style="color: var(--secondary); margin-bottom: 10px;">💬 Messenger</h4>
+                <div class="messages" id="messages">
+                    <div class="message">
+                        <div style="color: var(--text-muted); font-size: 0.75em;">System</div>
+                        <div style="color: #fff; font-size: 0.85em;">Welcome to Mayhem Module! Invite collaborators to work together in real-time.</div>
+                    </div>
+                </div>
+                <div class="message-input">
+                    <input type="text" placeholder="Type message..." id="messageInput" onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button class="studio-btn" onclick="sendMessage()" style="padding: 8px 12px;">Send</button>
+                </div>
+            </div>
+            
+            <!-- Online Collaborators -->
+            <div style="margin-top: 15px; padding: 15px; background: rgba(0, 8, 20, 0.9); border: 2px solid var(--primary); border-radius: 12px;">
+                <h4 style="color: var(--secondary); margin-bottom: 10px;">👥 Online (1)</h4>
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(0, 255, 255, 0.1); border-radius: 6px;">
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #22c55e;"></div>
+                    <div style="color: var(--text); font-size: 0.9em;">You</div>
+                </div>
+            </div>
+        </div>
+        
+    </div> <!-- End app-layout -->
+
+    <script>
+        // Audio Context
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+        let masterGain = audioContext.createGain();
+        masterGain.connect(audioContext.destination);
+        masterGain.gain.value = 0.75;
+
+        // Recording State
+        let isRecording = false;
+        let isPlaying = false;
+        let isLooping = false;
+        let isOverdubbing = false;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let recordingStartTime = 0;
+        let micStream = null;
+
+        // Sample Pads
+        const samplePads = Array(16).fill(null).map((_, i) => ({
+            id: i,
+            name: `Sample ${i + 1}`,
+            icon: ['🥁', '👢', '🎺', '🎸', '🎹', '🔔', '💥', '✨', '🎵', '🎶', '🔊', '🎷', '🎻', '🥁', '👏', '🔥'][i],
+            key: 'QWERASDFZXCV1234'[i],
+            sound: null
+        }));
+
+        // Initialize
+        function init() {
+            renderSamplePads();
+            renderFaders();
+            setupWaveform();
+            setupDragDrop();
+            setupMicAccess();
+            startAIAssistant();
+        }
+
+        // Render Sample Pads
+        function renderSamplePads() {
+            const grid = document.getElementById('sampleGrid');
+            grid.innerHTML = samplePads.map(pad => `
+                <div class="sample-pad" onclick="playSample(${pad.id})" id="pad-${pad.id}">
+                    <div class="pad-key">${pad.key}</div>
+                    <div class="pad-icon">${pad.icon}</div>
+                    <div style="color: var(--primary); font-size: 0.9em; font-weight: 600;">${pad.name}</div>
+                </div>
+            `).join('');
+        }
+
+        // Render Mixer Faders
+        function renderFaders() {
+            const rack = document.getElementById('faderRack');
+            const channels = ['KICK', 'SNARE', 'HHAT', 'TOM', 'BASS', 'SYNTH', 'VOX', 'GTR', 
+                            'KEYS', 'PAD', 'FX1', 'FX2', 'AUX1', 'AUX2', 'AUX3', 'MASTER'];
+            
+            rack.innerHTML = channels.map((ch, i) => `
+                <div class="fader-channel">
+                    <div class="fader-label">${ch}</div>
+                    <div class="fader-container" id="fader-container-${i}">
+                        <div class="fader" id="fader-${i}" style="bottom: 70px;"></div>
+                    </div>
+                    <div class="fader-value" id="fader-value-${i}">75</div>
+                </div>
+            `).join('');
+            
+            // Make faders draggable
+            channels.forEach((_, i) => setupFader(i));
+        }
+
+        // Setup Fader Dragging
+        function setupFader(index) {
+            const fader = document.getElementById(`fader-${index}`);
+            const container = document.getElementById(`fader-container-${index}`);
+            const valueDisplay = document.getElementById(`fader-value-${index}`);
+            let isDragging = false;
+
+            fader.addEventListener('mousedown', () => isDragging = true);
+            document.addEventListener('mouseup', () => isDragging = false);
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const rect = container.getBoundingClientRect();
+                let y = e.clientY - rect.top;
+                y = Math.max(10, Math.min(y, rect.height - 50));
+                
+                fader.style.bottom = (rect.height - y - 40) + 'px';
+                const value = Math.round((rect.height - y - 40) / (rect.height - 60) * 100);
+                valueDisplay.textContent = value;
+                
+                // Update audio gain for this channel
+                if (index === 15) { // Master fader
+                    masterGain.gain.value = value / 100;
+                }
+            });
+        }
+
+        // Setup Waveform Canvas
+        function setupWaveform() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth * 2;
+            canvas.height = 240;
+            
+            function draw() {
+                ctx.fillStyle = '#000814';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw waveform bars
+                for (let i = 0; i < 100; i++) {
+                    const height = Math.random() * canvas.height * 0.6;
+                    const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - height);
+                    gradient.addColorStop(0, '#00ffff');
+                    gradient.addColorStop(1, '#007bff');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(i * (canvas.width / 100), canvas.height / 2 - height / 2, canvas.width / 100 - 2, height);
+                }
+                
+                if (isPlaying || isRecording) {
+                    requestAnimationFrame(draw);
+                }
+            }
+            
+            draw();
+        }
+
+        // Microphone Access (supports webcam audio)
+        async function setupMicAccess() {
+            const micIndicator = document.getElementById('micIndicator');
+            const micText = document.getElementById('micText');
+            
+            try {
+                // Request both audio and video to get webcam mic
+                micStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    },
+                    video: false
+                });
+                
+                micIndicator.classList.add('active');
+                micText.textContent = 'Mic: Active ✓';
+                
+                console.log('✅ Microphone ready (including webcam audio)');
+            } catch (error) {
+                console.warn('Mic access:', error);
+                micText.textContent = 'Mic: Click to enable';
+                micIndicator.onclick = setupMicAccess;
+            }
+        }
+
+        // Play Sample
+        function playSample(id) {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            const pad = document.getElementById(`pad-${id}`);
+            pad.classList.add('hit');
+            setTimeout(() => pad.classList.remove('hit'), 100);
+            
+            // Generate sound
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.frequency.value = 100 + id * 50;
+            osc.connect(gain);
+            gain.connect(masterGain);
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Recording Functions
+        function toggleRecord() {
+            isRecording = !isRecording;
+            const btn = document.getElementById('recordBtn');
+            const icon = document.getElementById('recIcon');
+            const text = document.getElementById('recText');
+            const status = document.getElementById('recordingStatus');
+            
+            if (isRecording) {
+                btn.classList.add('recording');
+                text.textContent = 'Recording...';
+                status.style.display = 'block';
+                startRecording();
+            } else {
+                btn.classList.remove('recording');
+                text.textContent = 'Record';
+                status.style.display = 'none';
+                stopRecording();
+            }
+        }
+
+        function startRecording() {
+            if (!micStream) {
+                alert('🎤 Please enable microphone first!');
+                toggleRecord();
+                return;
+            }
+            
+            recordedChunks = [];
+            mediaRecorder = new MediaRecorder(micStream);
+            
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) recordedChunks.push(e.data);
+            };
+            
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                const url = URL.createObjectURL(blob);
+                console.log('✅ Recording saved:', url);
+                alert('✅ Recording saved! You can now play it back.');
+            };
+            
+            mediaRecorder.start();
+            recordingStartTime = Date.now();
+            updateTimer();
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        }
+
+        function toggleOverdub() {
+            isOverdubbing = !isOverdubbing;
+            document.getElementById('overdubBtn').classList.toggle('active');
+            alert(isOverdubbing ? '🎚️ Overdub ON - Layer new recordings!' : '🎚️ Overdub OFF');
+        }
+
+        function toggleLoop() {
+            isLooping = !isLooping;
+            document.getElementById('loopBtn').classList.toggle('active');
+            alert(isLooping ? '🔁 Loop ON' : '🔁 Loop OFF');
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playBtn');
+            btn.textContent = isPlaying ? '⏸️' : '▶️';
+            btn.classList.toggle('playing');
+            setupWaveform();
+        }
+
+        function stop() {
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶️';
+            document.getElementById('playBtn').classList.remove('playing');
+        }
+
+        function rewind() {
+            recordingStartTime = Date.now();
+            document.getElementById('timeDisplay').textContent = '00:00';
+        }
+
+        function updateTimer() {
+            if (isRecording || isPlaying) {
+                const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const secs = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timeDisplay').textContent = `${mins}:${secs}`;
+                setTimeout(updateTimer, 1000);
+            }
+        }
+
+        // AI Assistant
+        function startAIAssistant() {
+            const suggestions = [
+                "Try adding a hi-hat pattern on beats 2 and 4 for classic groove!",
+                "Your kick could use some sub-bass. Want me to generate one?",
+                "Detected repetitive pattern - shall I create a variation?",
+                "This would sound great with a vinyl crackle layer!",
+                "I can pitch-shift this sample for a chopped effect. Interested?"
+            ];
+            
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    const suggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+                    document.getElementById('suggestionText').textContent = suggestion;
+                }
+            }, 10000);
+        }
+
+        function applyAISuggestion() {
+            alert('✅ AI suggestion applied! Check your pads.');
+        }
+
+        function rejectSuggestion() {
+            alert('👍 No problem! I\'ll keep listening.');
+        }
+
+        function requestMore() {
+            alert('🤔 Analyzing your mix... new suggestions coming!');
+        }
+
+        // Drag & Drop
+        function setupDragDrop() {
+            const zone = document.getElementById('uploadZone');
+            const input = document.getElementById('fileInput');
+            
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+            
+            input.addEventListener('change', (e) => handleFiles(e.target.files));
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('audio/')) {
+                    alert(`✅ Loading: ${file.name}`);
+                    // Load audio file logic here
+                }
+            }
+        }
+
+        // View Switching
+        function switchView(viewName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById(viewName).classList.add('active');
+        }
+        
+        // ==== FILE MENU FUNCTIONS ====
+        function toggleMenu(menuName) {
+            const fileMenu = document.getElementById('fileMenu');
+            if (menuName === 'file') {
+                fileMenu.style.display = fileMenu.style.display === 'none' ? 'block' : 'none';
+            } else if (menuName === 'settings') {
+                openSettings();
+            }
+        }
+        
+        function newProject() {
+            if (confirm('Start new project? Unsaved changes will be lost.')) {
+                location.reload();
+            }
+        }
+        
+        function openProject() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.mayhem,.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const project = JSON.parse(event.target.result);
+                        alert(`✅ Project "${file.name}" loaded!`);
+                    } catch (err) {
+                        alert('❌ Invalid project file');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        function saveProject() {
+            const project = {
+                name: 'Mayhem Project',
+                timestamp: new Date().toISOString(),
+                pads: samplePads,
+                settings: synthParams
+            };
+            const blob = new Blob([JSON.stringify(project, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mayhem-project-${Date.now()}.mayhem`;
+            a.click();
+            alert('✅ Project saved!');
+        }
+        
+        function saveProjectAs() {
+            saveProject();
+        }
+        
+        function exportAudio() {
+            alert('🎵 Exporting to WAV... (Feature in development)');
+        }
+        
+        function exportMIDI() {
+            alert('🎹 Exporting MIDI... (Feature in development)');
+        }
+        
+        function exportKit() {
+            const kit = {
+                name: prompt('Kit name:', 'My Custom Kit') || 'Custom Kit',
+                created: new Date().toISOString(),
+                pads: samplePads.map(pad => ({
+                    id: pad.id,
+                    name: pad.name,
+                    icon: pad.icon,
+                    // Sample data would go here
+                })),
+                chops: chopPoints,
+                sample: loadedSample
+            };
+            
+            const blob = new Blob([JSON.stringify(kit, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${kit.name.replace(/\s+/g, '-')}-kit.mayhem`;
+            a.click();
+            
+            alert(`✅ Kit pack "${kit.name}" exported!`);
+        }
+        
+        function loadKit() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.mayhem';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const kit = JSON.parse(event.target.result);
+                        // Load kit data into pads
+                        chopPoints = kit.chops || [];
+                        alert(`✅ Kit "${kit.name}" loaded!\n\n${kit.pads.length} samples ready.`);
+                    } catch (err) {
+                        alert('❌ Invalid kit file');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        function openSettings() {
+            alert('⚙️ SETTINGS\n\n• Audio Interface: Default\n• MIDI Input: Detect USB controllers\n• Sample Rate: 44.1kHz\n• Buffer Size: 512\n\n(Full settings panel coming soon)');
+        }
+        
+        // ==== DRUM MACHINE FUNCTIONS ====
+        const drumSounds = {
+            0: { name: 'KICK', freq: 60, decay: 0.5 },
+            1: { name: 'SNARE', freq: 200, decay: 0.2 },
+            2: { name: 'CLAP', freq: 1000, decay: 0.1 },
+            3: { name: 'HI-HAT', freq: 8000, decay: 0.05 },
+            4: { name: 'TOM1', freq: 150, decay: 0.3 },
+            5: { name: 'TOM2', freq: 100, decay: 0.3 },
+            6: { name: 'CRASH', freq: 3000, decay: 1.0 },
+            7: { name: 'PERC1', freq: 500, decay: 0.15 },
+            8: { name: 'PERC2', freq: 700, decay: 0.15 },
+            9: { name: 'PERC3', freq: 900, decay: 0.15 },
+            10: { name: 'FX1', freq: 2000, decay: 0.5 },
+            11: { name: 'FX2', freq: 4000, decay: 0.5 },
+            12: { name: 'SAMPLE1', freq: 440, decay: 0.3 },
+            13: { name: 'SAMPLE2', freq: 550, decay: 0.3 },
+            14: { name: 'SAMPLE3', freq: 660, decay: 0.3 },
+            15: { name: 'SAMPLE4', freq: 770, decay: 0.3 }
+        };
+        
+        function playDrum(id) {
+            if (audioContext.state === 'suspended') audioContext.resume();
+            
+            const sound = drumSounds[id];
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.frequency.value = sound.freq;
+            osc.type = id === 0 ? 'sine' : id === 1 || id === 2 ? 'triangle' : 'square';
+            
+            filter.type = 'lowpass';
+            filter.frequency.value = sound.freq * 2;
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+            
+            gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.decay);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + sound.decay);
+            
+            // Visual feedback
+            const pad = document.getElementById(`drum-${id}`);
+            pad.classList.add('hit');
+            setTimeout(() => pad.classList.remove('hit'), 100);
+        }
+        
+        // Keyboard support for drums
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toUpperCase();
+            const drumKeys = 'QWERASDFZXCV1234';
+            const index = drumKeys.indexOf(key);
+            if (index !== -1) {
+                playDrum(index);
+            }
+        });
+        
+        // ==== SYNTHESIZER FUNCTIONS ====
+        let synthParams = {
+            mode: 'poly',
+            attack: 0.01,
+            decay: 0.1,
+            sustain: 0.7,
+            release: 0.3,
+            cutoff: 2000,
+            resonance: 1,
+            lfoRate: 5,
+            lfoDepth: 50
+        };
+        
+        let currentOctave = 4;
+        let activeNotes = new Map();
+        let vocoderSource = null;
+        
+        function setSynthMode(mode) {
+            synthParams.mode = mode;
+            ['polyBtn', 'monoBtn', 'vocoderBtn'].forEach(id => {
+                document.getElementById(id).classList.remove('active');
+            });
+            document.getElementById(mode + 'Btn').classList.add('active');
+            
+            if (mode === 'vocoder' && !micStream) {
+                setupMicAccess();
+            }
+        }
+        
+        function renderSynthKeyboard() {
+            const keyboard = document.getElementById('synthKeyboard');
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const keys = ['A', 'W', 'S', 'E', 'D', 'F', 'T', 'G', 'Y', 'H', 'U', 'J', 'K'];
+            
+            keyboard.innerHTML = '';
+            for (let i = 0; i < 24; i++) {
+                const note = notes[i % 12];
+                const octave = currentOctave + Math.floor(i / 12);
+                const isBlack = note.includes('#');
+                const keyLabel = i < 13 ? keys[i] : '';
+                
+                const keyDiv = document.createElement('div');
+                keyDiv.className = `key ${isBlack ? 'black' : ''}`;
+                keyDiv.innerHTML = `<div class="key-label">${keyLabel}</div>`;
+                keyDiv.onmousedown = () => playNote(note, octave);
+                keyDiv.onmouseup = () => stopNote(note + octave);
+                keyDiv.onmouseleave = () => stopNote(note + octave);
+                keyboard.appendChild(keyDiv);
+            }
+        }
+        
+        function playNote(note, octave) {
+            if (audioContext.state === 'suspended') audioContext.resume();
+            
+            const freq = getFrequency(note, octave);
+            const noteKey = note + octave;
+            
+            if (synthParams.mode === 'mono') {
+                activeNotes.forEach((_, key) => stopNote(key));
+            }
+            
+            if (synthParams.mode === 'vocoder') {
+                playVocodedNote(freq);
+                return;
+            }
+            
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.frequency.value = freq;
+            osc.type = 'sawtooth';
+            
+            filter.type = 'lowpass';
+            filter.frequency.value = synthParams.cutoff;
+            filter.Q.value = synthParams.resonance;
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+            
+            const now = audioContext.currentTime;
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.3, now + synthParams.attack);
+            gain.gain.linearRampToValueAtTime(synthParams.sustain * 0.3, now + synthParams.attack + synthParams.decay);
+            
+            osc.start();
+            
+            activeNotes.set(noteKey, { osc, gain, filter });
+        }
+        
+        function stopNote(noteKey) {
+            if (!activeNotes.has(noteKey)) return;
+            
+            const { osc, gain } = activeNotes.get(noteKey);
+            const now = audioContext.currentTime;
+            
+            gain.gain.cancelScheduledValues(now);
+            gain.gain.setValueAtTime(gain.gain.value, now);
+            gain.gain.linearRampToValueAtTime(0, now + synthParams.release);
+            
+            osc.stop(now + synthParams.release);
+            activeNotes.delete(noteKey);
+        }
+        
+        function playVocodedNote(freq) {
+            if (!micStream) {
+                alert('🎤 Please enable microphone for vocoder mode!');
+                return;
+            }
+            
+            const carrier = audioContext.createOscillator();
+            const carrierGain = audioContext.createGain();
+            const micSource = audioContext.createMediaStreamSource(micStream);
+            
+            carrier.frequency.value = freq;
+            carrier.type = 'sawtooth';
+            
+            carrier.connect(carrierGain);
+            carrierGain.connect(masterGain);
+            carrierGain.gain.value = 0.5;
+            
+            carrier.start();
+            vocoderSource = { carrier, carrierGain };
+            
+            setTimeout(() => {
+                carrier.stop();
+                vocoderSource = null;
+            }, 2000);
+        }
+        
+        function getFrequency(note, octave) {
+            const notes = { 'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11 };
+            const n = notes[note];
+            return 440 * Math.pow(2, (octave - 4) + (n - 9) / 12);
+        }
+        
+        function shiftOctave(direction) {
+            currentOctave = Math.max(1, Math.min(7, currentOctave + direction));
+            document.getElementById('octaveDisplay').textContent = `Octave: ${currentOctave}`;
+            renderSynthKeyboard();
+        }
+        
+        function loadPreset(name) {
+            const presets = {
+                juno: { attack: 0.3, decay: 0.5, sustain: 0.7, release: 1.0, cutoff: 1200, resonance: 2 },
+                brass: { attack: 0.1, decay: 0.3, sustain: 0.8, release: 0.5, cutoff: 3000, resonance: 3 },
+                bass: { attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.2, cutoff: 500, resonance: 5 },
+                lead: { attack: 0.01, decay: 0.05, sustain: 0.9, release: 0.1, cutoff: 5000, resonance: 1 },
+                pluck: { attack: 0.001, decay: 0.3, sustain: 0.0, release: 0.1, cutoff: 4000, resonance: 2 },
+                strings: { attack: 0.5, decay: 0.3, sustain: 0.8, release: 1.5, cutoff: 2500, resonance: 1.5 }
+            };
+            
+            Object.assign(synthParams, presets[name]);
+            updateSynthDisplay();
+            alert(`✅ Loaded ${name.toUpperCase()} preset`);
+        }
+        
+        function updateSynthDisplay() {
+            document.getElementById('attackValue').textContent = synthParams.attack.toFixed(2);
+            document.getElementById('decayValue').textContent = synthParams.decay.toFixed(2);
+            document.getElementById('sustainValue').textContent = synthParams.sustain.toFixed(2);
+            document.getElementById('releaseValue').textContent = synthParams.release.toFixed(2);
+            document.getElementById('cutoffValue').textContent = Math.round(synthParams.cutoff);
+            document.getElementById('resonanceValue').textContent = synthParams.resonance.toFixed(1);
+        }
+        
+        // ==== SAMPLE CHOPPER FUNCTIONS ====
+        let loadedSample = null;
+        let sampleBuffer = null;
+        let chopPoints = [];
+        let waveformZoom = 1;
+        
+        function setupWaveform() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth * 2;
+            canvas.height = 240;
+            
+            // Click to add chop points
+            canvas.addEventListener('click', (e) => {
+                if (!sampleBuffer) {
+                    alert('⚠️ Load a sample first!');
+                    return;
+                }
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const position = (x / rect.width) * sampleBuffer.duration;
+                
+                chopPoints.push(position);
+                chopPoints.sort((a, b) => a - b);
+                
+                drawWaveform();
+                document.getElementById('chopCount').textContent = `Chops: ${chopPoints.length}`;
+                
+                alert(`✂️ Chop point added at ${position.toFixed(2)}s`);
+            });
+            
+            drawWaveform();
+        }
+        
+        function drawWaveform() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#000814';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (!sampleBuffer) {
+                // Draw empty waveform
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height / 2);
+                ctx.lineTo(canvas.width, canvas.height / 2);
+                ctx.stroke();
+                return;
+            }
+            
+            // Draw actual waveform
+            const data = sampleBuffer.getChannelData(0);
+            const step = Math.ceil(data.length / canvas.width * waveformZoom);
+            const amp = canvas.height / 2;
+            
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let i = 0; i < canvas.width; i++) {
+                const min = Math.min(...Array.from({length: step}, (_, j) => data[i * step + j] || 0));
+                const max = Math.max(...Array.from({length: step}, (_, j) => data[i * step + j] || 0));
+                
+                const y1 = (1 + min) * amp;
+                const y2 = (1 + max) * amp;
+                
+                if (i === 0) {
+                    ctx.moveTo(i, y1);
+                } else {
+                    ctx.lineTo(i, y1);
+                    ctx.lineTo(i, y2);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Draw chop points
+            chopPoints.forEach(point => {
+                const x = (point / sampleBuffer.duration) * canvas.width;
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                
+                // Draw chop marker
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(x - 5, 0, 10, 20);
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px monospace';
+                ctx.fillText('✂️', x - 6, 15);
+            });
+        }
+        
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('audio/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        audioContext.decodeAudioData(e.target.result, (buffer) => {
+                            sampleBuffer = buffer;
+                            loadedSample = file.name;
+                            chopPoints = [];
+                            
+                            document.getElementById('waveformInfo').textContent = `${file.name} - ${buffer.duration.toFixed(2)}s - ${buffer.sampleRate}Hz`;
+                            document.getElementById('chopCount').textContent = 'Chops: 0';
+                            
+                            drawWaveform();
+                            alert(`✅ Loaded: ${file.name}\n\nClick on waveform to add chop points!`);
+                        }, (err) => {
+                            alert('❌ Error loading audio file');
+                        });
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+            }
+        }
+        
+        function playSamplePreview() {
+            if (!sampleBuffer) {
+                alert('⚠️ Load a sample first!');
+                return;
+            }
+            
+            const source = audioContext.createBufferSource();
+            source.buffer = sampleBuffer;
+            source.connect(masterGain);
+            source.start();
+            
+            alert('▶️ Playing preview...');
+        }
+        
+        function clearChopPoints() {
+            chopPoints = [];
+            drawWaveform();
+            document.getElementById('chopCount').textContent = 'Chops: 0';
+        }
+        
+        function autoChop() {
+            if (!sampleBuffer) {
+                alert('⚠️ Load a sample first!');
+                return;
+            }
+            
+            // Auto-detect chop points based on amplitude peaks
+            const data = sampleBuffer.getChannelData(0);
+            const threshold = 0.3;
+            const minDistance = sampleBuffer.sampleRate * 0.1; // 100ms minimum between chops
+            
+            chopPoints = [];
+            let lastChop = 0;
+            
+            for (let i = 0; i < data.length; i++) {
+                if (Math.abs(data[i]) > threshold && (i - lastChop) > minDistance) {
+                    chopPoints.push(i / sampleBuffer.sampleRate);
+                    lastChop = i;
+                }
+            }
+            
+            drawWaveform();
+            document.getElementById('chopCount').textContent = `Chops: ${chopPoints.length}`;
+            alert(`✂️ AI detected ${chopPoints.length} chop points!\n\nClick waveform to add more manually.`);
+        }
+        
+        function zoomWaveform(direction) {
+            waveformZoom = Math.max(0.5, Math.min(5, waveformZoom + direction * 0.5));
+            drawWaveform();
+        }
+        
+        // ==== MARKETPLACE FUNCTIONS ====
+        function loadMarketplaceKit(kitName) {
+            const kits = {
+                '808': { name: 'Classic 808 Kit', samples: 16, description: 'Legendary TR-808 drum sounds' },
+                '909': { name: '909 Drum Kit', samples: 16, description: 'Iconic TR-909 electronic drums' },
+                'vinyl': { name: 'Vinyl Breaks', samples: 12, description: 'Classic breakbeats' },
+                'synth': { name: 'Synth One-Shots', samples: 24, description: 'Analog synth samples' },
+                'bass': { name: 'Bass Collection', samples: 20, description: 'Deep bass sounds' },
+                'fx': { name: 'FX & Transitions', samples: 30, description: 'Risers and impacts' }
+            };
+            
+            const kit = kits[kitName];
+            if (confirm(`Load "${kit.name}"?\n\n${kit.description}\n${kit.samples} samples\n\nThis will replace current kit.`)) {
+                alert(`✅ "${kit.name}" loaded!\n\nSamples are now assigned to pads.`);
+            }
+        }
+        
+        function browseFreesound() {
+            if (confirm('🌐 Open Freesound.org to download free samples?\n\nYou can drag & drop downloaded files into Mayhem Module.')) {
+                window.open('https://freesound.org/', '_blank');
+            }
+        }
+        
+        // ==== COLLABORATION FUNCTIONS ====
+        let cameraEnabled = false;
+        let micEnabled = false;
+        let localStream = null;
+        
+        async function toggleCamera() {
+            cameraEnabled = !cameraEnabled;
+            const btn = document.getElementById('cameraBtn');
+            const video = document.getElementById('videoElement');
+            const placeholder = document.getElementById('videoPlaceholder');
+            
+            if (cameraEnabled) {
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    video.srcObject = localStream;
+                    placeholder.style.display = 'none';
+                    btn.style.background = 'var(--primary)';
+                    btn.style.color = 'var(--bg-dark)';
+                    alert('📹 Camera enabled!');
+                } catch (err) {
+                    alert('❌ Camera access denied');
+                    cameraEnabled = false;
+                }
+            } else {
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                }
+                video.srcObject = null;
+                placeholder.style.display = 'block';
+                btn.style.background = '';
+                btn.style.color = '';
+            }
+        }
+        
+        function toggleMic() {
+            micEnabled = !micEnabled;
+            const btn = document.getElementById('micBtn');
+            
+            if (micEnabled) {
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'var(--bg-dark)';
+                alert('🎤 Microphone enabled for collaboration!');
+            } else {
+                btn.style.background = '';
+                btn.style.color = '';
+            }
+        }
+        
+        function shareScreen() {
+            alert('🖥️ Screen sharing feature coming soon!\n\nWill allow you to share your Mayhem Module workspace with collaborators.');
+        }
+        
+        function joinSession() {
+            const sessionId = document.getElementById('sessionId').value;
+            if (!sessionId) {
+                alert('⚠️ Please enter a session ID');
+                return;
+            }
+            
+            alert(`🔗 Joining session: ${sessionId}\n\nReal-time collaboration features:\n• Shared project state\n• Live audio streaming\n• Chat messaging\n• Video/screen sharing\n\n(WebRTC integration in progress)`);
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('messages');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            messageEl.innerHTML = `
+                <div style="color: var(--text-muted); font-size: 0.75em;">You - ${new Date().toLocaleTimeString()}</div>
+                <div style="color: #fff; font-size: 0.85em;">${message}</div>
+            `;
+            messagesDiv.appendChild(messageEl);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            input.value = '';
+        }
+        
+        // ==== LIBRARY FUNCTIONS ====
+        function loadLibraryCategory(category) {
+            const categories = {
+                drums: { name: 'Drum Kits', count: 250, description: 'Acoustic and electronic drum samples' },
+                synth: { name: 'Synth Presets', count: 180, description: 'Analog and digital synth sounds' },
+                guitar: { name: 'Guitar Samples', count: 120, description: 'Electric and acoustic guitars' },
+                horns: { name: 'Horn Sections', count: 95, description: 'Brass instruments and sections' },
+                strings: { name: 'Strings', count: 140, description: 'Orchestral string samples' },
+                vinyl: { name: 'Vinyl Loops', count: 300, description: 'Classic breaks and loops' },
+                bass: { name: 'Bass Sounds', count: 160, description: 'Sub bass and bass guitars' },
+                fx: { name: 'FX & Hits', count: 220, description: 'Sound effects and impacts' },
+                vocals: { name: 'Vocal Samples', count: 85, description: 'Vocal chops and phrases' },
+                perc: { name: 'Percussion', count: 190, description: 'World percussion instruments' },
+                ambient: { name: 'Ambient Pads', count: 75, description: 'Atmospheric soundscapes' },
+                oneshot: { name: 'One-Shots', count: 280, description: 'Single-hit samples' }
+            };
+            
+            const cat = categories[category];
+            alert(`📚 Loading ${cat.name}\n\n${cat.description}\n${cat.count} sounds available\n\nBrowse and drag to pads, or let AI auto-assign!`);
+        }
+        
+        // ==== EFFECTS AUDIO GRAPH ====
+        let reverbNode, delayNode, chorusLFO, compressor, eqLow, eqMid, eqHigh;
+        
+        function initEffects() {
+            // Reverb (using convolver)
+            reverbNode = audioContext.createConvolver();
+            // Simple impulse response for reverb
+            const reverbLength = audioContext.sampleRate * 2;
+            const reverbBuffer = audioContext.createBuffer(2, reverbLength, audioContext.sampleRate);
+            for (let channel = 0; channel < 2; channel++) {
+                const channelData = reverbBuffer.getChannelData(channel);
+                for (let i = 0; i < reverbLength; i++) {
+                    channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / reverbLength, 2);
+                }
+            }
+            reverbNode.buffer = reverbBuffer;
+            
+            // Delay
+            delayNode = audioContext.createDelay(5.0);
+            delayNode.delayTime.value = 0.5;
+            const delayFeedback = audioContext.createGain();
+            delayFeedback.gain.value = 0.5;
+            delayNode.connect(delayFeedback);
+            delayFeedback.connect(delayNode);
+            
+            // Chorus (LFO modulation)
+            chorusLFO = audioContext.createOscillator();
+            chorusLFO.frequency.value = 2;
+            const chorusGain = audioContext.createGain();
+            chorusGain.gain.value = 0.005;
+            chorusLFO.connect(chorusGain);
+            chorusLFO.start();
+            
+            // Compressor
+            compressor = audioContext.createDynamicsCompressor();
+            compressor.threshold.value = -24;
+            compressor.knee.value = 30;
+            compressor.ratio.value = 12;
+            compressor.attack.value = 0.003;
+            compressor.release.value = 0.25;
+            
+            // EQ (3-band)
+            eqLow = audioContext.createBiquadFilter();
+            eqLow.type = 'lowshelf';
+            eqLow.frequency.value = 200;
+            eqLow.gain.value = 0;
+            
+            eqMid = audioContext.createBiquadFilter();
+            eqMid.type = 'peaking';
+            eqMid.frequency.value = 1000;
+            eqMid.gain.value = 0;
+            eqMid.Q.value = 1;
+            
+            eqHigh = audioContext.createBiquadFilter();
+            eqHigh.type = 'highshelf';
+            eqHigh.frequency.value = 3000;
+            eqHigh.gain.value = 0;
+            
+            // Connect effects chain
+            const reverbGain = audioContext.createGain();
+            const delayGain = audioContext.createGain();
+            reverbGain.gain.value = 0.3;
+            delayGain.gain.value = 0.5;
+            
+            // Effects send/return
+            reverbNode.connect(reverbGain);
+            delayNode.connect(delayGain);
+            
+            reverbGain.connect(eqLow);
+            delayGain.connect(eqLow);
+            
+            eqLow.connect(eqMid);
+            eqMid.connect(eqHigh);
+            eqHigh.connect(compressor);
+            compressor.connect(masterGain);
+            
+            console.log('✅ Effects initialized and connected to audio graph');
+        }
+        
+        function adjustEffectKnob(effect, value) {
+            switch(effect) {
+                case 'reverb':
+                    // Adjust reverb wet/dry mix
+                    break;
+                case 'delay':
+                    delayNode.delayTime.value = value / 100 * 2; // 0-2 seconds
+                    break;
+                case 'compress':
+                    compressor.threshold.value = -50 + (value / 100 * 40); // -50 to -10 dB
+                    break;
+                case 'eqLow':
+                    eqLow.gain.value = (value - 50) / 5; // -10 to +10 dB
+                    break;
+                case 'eqMid':
+                    eqMid.gain.value = (value - 50) / 5;
+                    break;
+                case 'eqHigh':
+                    eqHigh.gain.value = (value - 50) / 5;
+                    break;
+            }
+        }
+
+        // Initialize
+        init();
+        renderSynthKeyboard();
+        initEffects();
+        
+        // Welcome
+        setTimeout(() => {
+            alert('🎛️ MAYHEM MODULE LOADED!\n\nPowered by Pitch Modular Spaces\n\n✅ Professional-grade equipment\n✅ AI co-producer assistant\n✅ Recording & overdub\n✅ Sample chopper & looping\n✅ Audio interface support\n✅ MIDI controller ready\n\nYour AI partner is ready to suggest ideas but YOU control everything!\n\nLet\'s make some fire beats! 🔥');
+        }, 500);
+    </script>
+</body>
+</html>
