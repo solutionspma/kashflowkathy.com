@@ -1732,11 +1732,15 @@
                 const source = audioCtx.createMediaStreamSource(audioInputStream);
                 source.connect(inputAnalyzer);
                 
+                // Store the input source globally for track routing
+                window.audioInputSource = source;
+                
                 // Start level meter animation
                 updateInputLevel();
                 
                 console.log('✅ Audio input connected:', select.options[select.selectedIndex].text);
-                alert(`✅ Connected: ${select.options[select.selectedIndex].text}\n\nYou should now be able to hear yourself when recording!`);
+                console.log('🎤 Input source ready for track monitoring');
+                alert(`✅ Connected: ${select.options[select.selectedIndex].text}\n\nInput monitoring now available on tracks!`);
             } catch (error) {
                 console.error('❌ Error selecting audio input:', error);
                 alert('❌ Could not access selected audio input');
@@ -2150,20 +2154,32 @@
         }
         
         function startTrackRecording(track) {
-            if (!track.input || !audioInputStream) {
-                console.warn(`Track ${track.id} has no input source`);
+            if (!audioInputStream) {
+                console.error('❌ No audio input stream available!');
+                alert('⚠️ No audio input detected!\\n\\nPlease select an input device in the Sampler tab first.');
                 return;
             }
+            
+            if (!track.input) {
+                console.warn(`Track ${track.id} has no input source selected`);
+                alert(`⚠️ No input selected for ${track.name}!\\n\\nPlease select an input source.`);
+                return;
+            }
+            
+            console.log(`🎙️ Starting recording on ${track.name} with input: ${track.input}`);
             
             // Create MediaRecorder for this track
             const mediaRecorder = new MediaRecorder(audioInputStream);
             const chunks = [];
             
             // Create analyser for waveform visualization
-            const analyser = audioContext.createAnalyser();
+            const analyser = audioCtx.createAnalyser();
             analyser.fftSize = 2048;
-            const source = audioContext.createMediaStreamSource(audioInputStream);
-            source.connect(analyser);
+            
+            // Use the existing input source
+            if (window.audioInputSource) {
+                window.audioInputSource.connect(analyser);
+            }
             
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
@@ -3000,6 +3016,9 @@
                 muted: false,
                 soloed: false,
                 armed: false,
+                inputMonitoring: false,
+                input: null,
+                inputConnection: null,
                 recordings: [],
                 volume: 0.8
             };
@@ -3020,6 +3039,10 @@
                         <button class="channel-btn solo" onclick="toggleTrackSolo(${trackId})">S</button>
                         <button class="channel-btn arm" id="trackArm${trackId}" onclick="toggleTrackArm(${trackId})">R</button>
                     </div>
+                    
+                    <button class="channel-btn" id="trackMonitor${trackId}" onclick="toggleInputMonitoring(${trackId})" style="width: 100%; margin-top: 10px; background: rgba(34, 197, 94, 0.2);">
+                        🎧 Monitor OFF
+                    </button>
                     
                     <select style="width: 100%; margin-top: 10px; padding: 6px; background: rgba(0, 8, 20, 0.9); border: 1px solid var(--primary); border-radius: 4px; color: var(--primary); font-size: 0.8em;" onchange="setTrackInput(${trackId}, this.value)">
                         <option value="">-- Input --</option>
@@ -3103,6 +3126,67 @@
             
             track.input = input;
             console.log(`Track ${trackId} input set to: ${input}`);
+            
+            // If input is mic and monitoring is on, auto-connect
+            if (input === 'mic' && track.inputMonitoring && window.audioInputSource) {
+                if (track.inputConnection) {
+                    track.inputConnection.disconnect();
+                }
+                track.inputConnection = window.audioInputSource.connect(track.gain);
+                console.log(`🎤 Microphone routed to ${track.name}`);
+            }
+        }
+        
+        function toggleInputMonitoring(trackId) {
+            const track = tracks.find(t => t.id === trackId);
+            if (!track) return;
+            
+            track.inputMonitoring = !track.inputMonitoring;
+            const btn = document.getElementById(`trackMonitor${trackId}`);
+            
+            if (track.inputMonitoring) {
+                // Enable monitoring - connect input source to track gain
+                if (!window.audioInputSource) {
+                    alert('⚠️ No audio input detected!\\n\\nPlease select an input device in the Sampler tab first.');
+                    track.inputMonitoring = false;
+                    return;
+                }
+                
+                if (!track.input) {
+                    alert('⚠️ No input selected!\\n\\nPlease select an input source for this track.');
+                    track.inputMonitoring = false;
+                    return;
+                }
+                
+                // Connect audio input to track
+                if (track.input === 'mic') {
+                    track.inputConnection = window.audioInputSource.connect(track.gain);
+                    console.log(`🔊 Input monitoring enabled for ${track.name}`);
+                }
+                
+                btn.classList.add('active');
+                btn.innerHTML = '🔈 Monitoring';
+                btn.style.background = 'rgba(34, 197, 94, 0.8)';
+                btn.style.borderColor = '#22c55e';
+                
+            } else {
+                // Disable monitoring - disconnect input
+                if (track.inputConnection) {
+                    try {
+                        track.inputConnection.disconnect(track.gain);
+                    } catch (e) {
+                        // Already disconnected
+                    }
+                    track.inputConnection = null;
+                }
+                
+                btn.classList.remove('active');
+                btn.innerHTML = '🎧 Monitor OFF';
+                btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                btn.style.borderColor = '';
+                
+                console.log(`🔇 Input monitoring disabled for ${track.name}`);
+            }
         }
         
         function deleteTrack(trackId) {
